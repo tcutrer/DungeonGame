@@ -26,7 +26,7 @@ public class Testing : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(0)) {
-            grid.SetValue(mouseWorldPosition, 56);
+            grid.AddValue(mouseWorldPosition, 5, 2);
         }
 
         if (Input.GetMouseButtonDown(1)) {

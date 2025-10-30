@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Grid {
 
+    public const int HEATMAP_MAX_VALUE = 100;
+    public const int HEATMAP_MIN_VALUE = 0;
+
     private int width;
     private int height;
     private float cellSize;
@@ -20,15 +23,18 @@ public class Grid {
         gridArray = new int[width, height];
         debugTextArray = new TextMesh[width, height];
 
-        for (int x = 0; x < gridArray.GetLength(0); x++) {
-            for (int y = 0; y < gridArray.GetLength(1); y++) {
-                debugTextArray[x, y] = CreateWorldText(gridArray[x, y].ToString(), null, GetWorldPosition(x, y) + new Vector3(cellSize, cellSize) * .5f, 20, Color.white, TextAnchor.MiddleCenter);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 10f);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 10f);
+        bool showDebug = true;
+        if (showDebug) {
+            for (int x = 0; x < gridArray.GetLength(0); x++) {
+                for (int y = 0; y < gridArray.GetLength(1); y++) {
+                    debugTextArray[x, y] = CreateWorldText(gridArray[x, y].ToString(), null, GetWorldPosition(x, y) + new Vector3(cellSize, cellSize) * .5f, 20, Color.white, TextAnchor.MiddleCenter);
+                    Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 10f);
+                    Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 10f);
+                }
             }
+            Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 10f);
+            Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 10f);
         }
-        Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 10f);
-        Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 10f);
     }
 
     private Vector3 GetWorldPosition(int x, int y) {
@@ -42,7 +48,7 @@ public class Grid {
 
     public void SetValue(int x, int y, int value) {
         if (x >= 0 && y >= 0 && x < width && y < height) {
-            gridArray[x, y] = value;
+            gridArray[x, y] = Mathf.Clamp(value, HEATMAP_MIN_VALUE, HEATMAP_MAX_VALUE);
             debugTextArray[x, y].text = gridArray[x, y].ToString();
         }
     }
@@ -51,6 +57,12 @@ public class Grid {
         int x = Mathf.FloorToInt((worldPosition - originPosition).x / cellSize);
         int y = Mathf.FloorToInt((worldPosition - originPosition).y / cellSize);
         SetValue(x, y, value);
+    }
+
+    public void AddValue(int x, int y, int value) {
+        if (x >= 0 && y >= 0 && x < width && y < height) {
+            SetValue(x, y, gridArray[x, y] + value);
+        }
     }
 
     public int GetValue(int x, int y) {
@@ -65,6 +77,26 @@ public class Grid {
         int x , y;
         GetXY(worldPosition, out x, out y);
         return GetValue(x, y);
+    }
+
+    public void AddValue(Vector3 worldPosition, int value, int range = 1) {
+        GetXY(worldPosition, out int orginX, out int orginY);
+        for (int x = 0; x < range; x++) {
+            for (int y = 0; y < range; y++) {
+                AddValue(orginX + x, orginY + y, value);
+
+                if (x != 0) {
+                    AddValue(orginX - x, orginY + y, value);
+                }
+
+                if (y != 0) {
+                    AddValue(orginX + x, orginY - y, value);
+                    if (x != 0) {
+                        AddValue(orginX - x, orginY - y, value);
+                    }
+                }
+            }
+        }
     }
 
     public static TextMesh CreateWorldText(string text, Transform parent = null, Vector3 localPosition = default(Vector3), int fontSize = 40, Color color = default(Color), TextAnchor textAnchor = TextAnchor.UpperLeft, TextAlignment textAlignment = TextAlignment.Left) {
