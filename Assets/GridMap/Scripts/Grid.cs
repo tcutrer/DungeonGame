@@ -23,14 +23,12 @@ public class Grid {
         for (int x = 0; x < gridArray.GetLength(0); x++) {
             for (int y = 0; y < gridArray.GetLength(1); y++) {
                 debugTextArray[x, y] = CreateWorldText(gridArray[x, y].ToString(), null, GetWorldPosition(x, y) + new Vector3(cellSize, cellSize) * .5f, 20, Color.white, TextAnchor.MiddleCenter);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 100f);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 100f);
+                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 10f);
+                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 10f);
             }
         }
-        Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 100f);
-        Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 100f);
-
-        SetValue(2, 1, 56);
+        Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 10f);
+        Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 10f);
     }
 
     private Vector3 GetWorldPosition(int x, int y) {
@@ -50,8 +48,8 @@ public class Grid {
     }
 
     public void SetValue(Vector3 worldPosition, int value) {
-        int x = Mathf.FloorToInt(worldPosition.x / cellSize);
-        int y = Mathf.FloorToInt(worldPosition.y / cellSize);
+        int x = Mathf.FloorToInt((worldPosition - originPosition).x / cellSize);
+        int y = Mathf.FloorToInt((worldPosition - originPosition).y / cellSize);
         SetValue(x, y, value);
     }
 
