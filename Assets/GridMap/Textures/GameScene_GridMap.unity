@@ -148,6 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 165805b64b330ad4fb52f94e331663a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCamera: {fileID: 0}
+  mouseWorldPosition: {x: 0, y: 0, z: 0}
 --- !u!4 &1401460332
 Transform:
   m_ObjectHideFlags: 0
