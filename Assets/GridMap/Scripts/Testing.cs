@@ -10,7 +10,9 @@ public class Testing : MonoBehaviour {
 
     // Start is called before the first frame update
     private void Start() {
+        // Create test grid
         grid = new Grid<bool>(20, 14, 10f, new Vector3(-100, -70), () => false);
+        // Get main camera if not assigned
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
@@ -21,11 +23,13 @@ public class Testing : MonoBehaviour {
     private void Update() {
         if (mainCamera != null)
         {
+            //Update mouse world position
             Vector3 mouseScreenPosition = Input.mousePosition;
             mouseScreenPosition.z = 0;
             mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
         }
         
+        // Left click to set true at mouse position, right click to get value at mouse position
         if (Input.GetMouseButtonDown(0)) {
             grid.SetGridObject(mouseWorldPosition, true);
         }
