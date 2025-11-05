@@ -11,18 +11,8 @@ public class Testing : MonoBehaviour {
 
     // Start is called before the first frame update
     private void Start() {
-        grid = new Grid<GameObject>(20, 14, 10f, new Vector3(-100, -70), () => {
-            GameObject prefab = Resources.Load<GameObject>("Test_Sprite");
-            if (prefab == null) {
-                Debug.LogError("Test_Sprite prefab not found in Resources folder!");
-                return null;
-            }
-            GameObject instance = Instantiate(prefab);
-            // Set the sprite's position and scale based on cell size
-            instance.transform.localScale = new Vector3(10f, 10f, 1f); // Adjust scale to match cell size
-            instance.SetActive(true);
-            return instance;
-        });
+        Test_Sprite spriteCreator = new Test_Sprite();
+        grid = new Grid<GameObject>(20, 14, 10f, new Vector3(-100, -70), spriteCreator.CreateSprite);
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
