@@ -1,41 +1,73 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Testing : MonoBehaviour {
 
-    private Grid<bool> grid;
+    private Grid<GameObject> grid;
     public Camera mainCamera;
     public Vector3 mouseWorldPosition;
 
     // Start is called before the first frame update
     private void Start() {
-        // Create test grid
-        grid = new Grid<bool>(20, 14, 10f, new Vector3(-100, -70), () => false);
-        // Get main camera if not assigned
+        grid = new Grid<GameObject>(20, 14, 10f, new Vector3(-100, -70), () => {
+            GameObject prefab = Resources.Load<GameObject>("Test_Sprite");
+            if (prefab == null) {
+                Debug.LogError("Test_Sprite prefab not found in Resources folder!");
+                return null;
+            }
+            GameObject instance = Instantiate(prefab);
+            // Set the sprite's position and scale based on cell size
+            instance.transform.localScale = new Vector3(10f, 10f, 1f); // Adjust scale to match cell size
+            instance.SetActive(true);
+            return instance;
+        });
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
+        }
+        for (int x = 0; x < 20; x++) {
+            for (int y = 0; y < 14; y++) {
+                Vector3 position = new Vector3(x * 10f - 95f, y * 10f - 65f, 0f);
+                GameObject obj = grid.GetGridObject(position);
+                if (obj != null) {
+                    obj.SetActive(true);
+                    // Snap the position to the grid
+                    Vector3 snappedPosition = new Vector3(
+                        Mathf.Floor((position.x + 100) / 10f) * 10f - 95f,
+                        Mathf.Floor((position.y + 70) / 10f) * 10f - 65f,
+                        0f
+                    );
+                    obj.transform.position = snappedPosition;
+                }
+            }
         }
     }
 
     // Update is called once per frame
     private void Update() {
-        if (mainCamera != null)
-        {
-            //Update mouse world position
-            Vector3 mouseScreenPosition = Input.mousePosition;
-            mouseScreenPosition.z = 0;
-            mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
+        if (mainCamera != null) {
+        Vector3 mouseScreenPosition = Input.mousePosition;
+        mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
+        mouseWorldPosition.z = 0; // Keep sprites on the same z-plane
+    }
+    
+    if (Input.GetMouseButtonDown(0)) {
+        GameObject obj = grid.GetGridObject(mouseWorldPosition);
+        if (obj != null) {
+            SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
+                if (spriteChanger != null) {
+                    spriteChanger.ChangeSprite();
+                }
         }
-        
-        // Left click to set true at mouse position, right click to get value at mouse position
-        if (Input.GetMouseButtonDown(0)) {
-            grid.SetGridObject(mouseWorldPosition, true);
-        }
+    }
 
         if (Input.GetMouseButtonDown(1)) {
-            Debug.Log(grid.GetGridObject(mouseWorldPosition));
+            GameObject obj = grid.GetGridObject(mouseWorldPosition);
+            if (obj != null) {
+                obj.SetActive(false);
+            }
         }
     }
 }

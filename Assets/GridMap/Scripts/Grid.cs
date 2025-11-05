@@ -56,25 +56,11 @@ public class Grid<TGridObject> { // Generic Grid class using Templates to allow 
         this.originPosition = originPosition;
 
         gridArray = new TGridObject[width, height];
-        debugTextArray = new TextMesh[width, height];
 
         for (int x = 0; x< gridArray.GetLength(0); x++) {
             for (int y = 0; y < gridArray.GetLength(1); y++){
                 gridArray[x, y] = createGridObject();
             }
-        }
-
-        bool showDebug = true; // Toggle debug visualization and rest of method is for debugging
-        if (showDebug) {
-            for (int x = 0; x < gridArray.GetLength(0); x++) {
-                for (int y = 0; y < gridArray.GetLength(1); y++) {
-                    debugTextArray[x, y] = CreateWorldText(gridArray[x, y]?.ToString(), null, GetWorldPosition(x, y) + new Vector3(cellSize, cellSize) * .5f, 20, Color.white, TextAnchor.MiddleCenter);
-                    Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 10f);
-                    Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 10f);
-                }
-            }
-            Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 10f);
-            Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 10f);
         }
     }
 
@@ -111,7 +97,6 @@ public class Grid<TGridObject> { // Generic Grid class using Templates to allow 
         */
         if (x >= 0 && y >= 0 && x < width && y < height) {
             gridArray[x, y] = value;
-            debugTextArray[x, y].text = gridArray[x, y].ToString();
         }
     }
 
