@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpriteChanger : MonoBehaviour
@@ -9,17 +12,30 @@ public class SpriteChanger : MonoBehaviour
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = availableSprites[currentSpriteIndex];
     }
 
-    public void ChangeSprite()
+    public void ChangeSprite(int index = -1)
     {
-        if (availableSprites == null || availableSprites.Length == 0) 
+
+        if (availableSprites == null || availableSprites.Length == 0)
         {
             Debug.LogWarning("No sprites assigned to SpriteChanger!");
             return;
         }
 
-        currentSpriteIndex = (currentSpriteIndex + 1) % availableSprites.Length;
-        spriteRenderer.sprite = availableSprites[currentSpriteIndex];
+        if (index == -1)
+        {
+            currentSpriteIndex = (currentSpriteIndex + 1) % availableSprites.Length;
+            spriteRenderer.sprite = availableSprites[currentSpriteIndex];
+            return;
+        }
+        currentSpriteIndex = index
+        spriteRenderer.sprite = availableSprites[index];
+    }
+    
+    public int GetCurrentSpriteIndex()
+    {
+        return currentSpriteIndex;
     }
 }

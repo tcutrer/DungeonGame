@@ -2,27 +2,32 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Testing : MonoBehaviour {
 
     private Grid<GameObject> grid;
     public Camera mainCamera;
     public Vector3 mouseWorldPosition;
+    private Test_Sprite testSprite;
+    private GameObject testSpriteObject;
 
     // Start is called before the first frame update
     private void Start() {
-        Test_Sprite spriteCreator = new Test_Sprite();
-        grid = new Grid<GameObject>(20, 14, 10f, new Vector3(-100, -70), spriteCreator.CreateSprite);
+        testSprite = new Test_Sprite(); // Proper instantiation
+        grid = new Grid<GameObject>(20, 14, 10f, new Vector3(-100, -70), testSprite.CreateSprite);
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
         }
-        for (int x = 0; x < 20; x++) {
-            for (int y = 0; y < 14; y++) {
+        for (int x = 0; x < 20; x++)
+        {
+            for (int y = 0; y < 14; y++)
+            {
                 Vector3 position = new Vector3(x * 10f - 95f, y * 10f - 65f, 0f);
                 GameObject obj = grid.GetGridObject(position);
-                if (obj != null) {
-                    obj.SetActive(true);
+                if (obj != null)
+                {
                     // Snap the position to the grid
                     Vector3 snappedPosition = new Vector3(
                         Mathf.Floor((position.x + 100) / 10f) * 10f - 95f,
@@ -33,6 +38,8 @@ public class Testing : MonoBehaviour {
                 }
             }
         }
+        testSpriteObject = testSprite.CreateSprite();
+        testSpriteObject.transform.position = new Vector3(-125, 0, 0);
     }
 
     // Update is called once per frame
@@ -48,15 +55,25 @@ public class Testing : MonoBehaviour {
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
                 if (spriteChanger != null) {
-                    spriteChanger.ChangeSprite();
+                    SpriteChanger displaySprite = testSpriteObject.GetComponent<SpriteChanger>();
+                    if (displaySprite != null) {
+                        costumeIndex = displaySprite.GetCurrentSpriteIndex();
+                        spriteChanger.ChangeSprite(costumeIndex);
+                    }
                 }
         }
     }
 
-        if (Input.GetMouseButtonDown(1)) {
-            GameObject obj = grid.GetGridObject(mouseWorldPosition);
-            if (obj != null) {
-                obj.SetActive(false);
+    if (Mouse.current != null)
+        {
+            Vector2 scrollDelta = Mouse.current.scroll.ReadValue();
+
+            if (scrollDelta.y > 0f)
+            {
+                SpriteChanger spriteChanger = testSpriteObject.GetComponent<SpriteChanger>();
+                if (spriteChanger != null) {
+                    spriteChanger.ChangeSprite();
+                }
             }
         }
     }
