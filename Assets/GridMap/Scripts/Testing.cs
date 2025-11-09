@@ -57,7 +57,7 @@ public class Testing : MonoBehaviour {
                 if (spriteChanger != null) {
                     SpriteChanger displaySprite = testSpriteObject.GetComponent<SpriteChanger>();
                     if (displaySprite != null) {
-                        costumeIndex = displaySprite.GetCurrentSpriteIndex();
+                        int costumeIndex = displaySprite.GetCurrentSpriteIndex();
                         spriteChanger.ChangeSprite(costumeIndex);
                     }
                 }

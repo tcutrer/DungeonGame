@@ -30,7 +30,7 @@ public class SpriteChanger : MonoBehaviour
             spriteRenderer.sprite = availableSprites[currentSpriteIndex];
             return;
         }
-        currentSpriteIndex = index
+        currentSpriteIndex = index;
         spriteRenderer.sprite = availableSprites[index];
     }
     
