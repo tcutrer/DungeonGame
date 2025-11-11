@@ -38,4 +38,9 @@ public class SpriteChanger : MonoBehaviour
     {
         return currentSpriteIndex;
     }
+
+    public int GetTotalSprites()
+    {
+        return availableSprites.Length;
+    }
 }
