@@ -40,7 +40,8 @@ public class Grid<TGridObject> { // Generic Grid class using Templates to allow 
     private TGridObject[,] gridArray;
     private TextMesh[,] debugTextArray;
 
-    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<TGridObject> createGridObject) {
+    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<TGridObject> createGridObject)
+    {
         /*
         * Constructor to initialize the grid
         * Parameters: 
@@ -57,11 +58,49 @@ public class Grid<TGridObject> { // Generic Grid class using Templates to allow 
 
         gridArray = new TGridObject[width, height];
 
-        for (int x = 0; x< gridArray.GetLength(0); x++) {
-            for (int y = 0; y < gridArray.GetLength(1); y++){
+        for (int x = 0; x < gridArray.GetLength(0); x++)
+        {
+            for (int y = 0; y < gridArray.GetLength(1); y++)
+            {
                 gridArray[x, y] = createGridObject();
             }
         }
+    }
+
+    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObject)
+    {
+        this.width = width;
+        this.height = height;
+        this.cellSize = cellSize;
+        this.originPosition = originPosition;
+
+        gridArray = new TGridObject[width, height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                gridArray[x, y] = createGridObject(this, x, y);
+            }
+        }
+    }
+
+    public int GetWidth()
+    {
+        /*
+        * Gets the width of the grid
+        * Returns: width of the grid
+        */
+        return width;
+    }
+    
+    public int GetHeight()
+    {
+        /*
+        * Gets the height of the grid
+        * Returns: height of the grid
+        */
+        return height;
     }
 
     private Vector3 GetWorldPosition(int x, int y) {
@@ -75,7 +114,7 @@ public class Grid<TGridObject> { // Generic Grid class using Templates to allow 
         return new Vector3(x, y) * cellSize + originPosition;
     }
 
-    private void GetXY(Vector3 worldPosition, out int x, out int y) {
+    public void GetXY(Vector3 worldPosition, out int x, out int y) {
         /*
         * Converts world position to grid coordinates
         * Parameters:
