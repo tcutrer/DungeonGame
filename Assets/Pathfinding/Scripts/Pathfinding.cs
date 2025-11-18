@@ -8,12 +8,45 @@ public class Pathfinding
     private const int MOVE_STRAIGHT_COST = 10;
     private const int MOVE_DIAGONAL_COST = 14;
 
+    public static Pathfinding Instance { get; private set; }
+
     private Grid<PathNode> grid;
-    private List<PathNode> openList;
+    private BSTNode bstRoot;
     private List<PathNode> closedList;
     public Pathfinding(int width, int height)
     {
+        Instance = this;
         grid = new Grid<PathNode>(width, height, 10f, new Vector3(-100f , -70f), (Grid<PathNode> g, int x, int y) => new PathNode(g, x, y), true);
+    }
+
+    public List<Vector3> FindPath(Vector3 startWorldPosition, Vector3 endWorldPosition)
+    {
+        /*
+        * Finds a path from start to end using A* algorithm
+        * Parameters:
+        *      startWorldPosition: starting position in world coords
+        *      endWorldPosition: ending position in world coords
+        * Returns: list of Vector3 positions representing the path
+        */
+        int startX, startY;
+        int endX, endY;
+        grid.GetXY(startWorldPosition, out startX, out startY);
+        grid.GetXY(endWorldPosition, out endX, out endY);
+
+        List<PathNode> path = FindPath(startX, startY, endX, endY);
+        if (path == null)
+        {
+            return null;
+        }
+        else
+        {
+            List<Vector3> vectorPath = new List<Vector3>();
+            foreach (PathNode pathNode in path)
+            {
+                vectorPath.Add(new Vector3(pathNode.x, pathNode.y) * 10f + new Vector3(-95f, -65f) );
+            }
+            return vectorPath;
+        }
     }
 
     public List<PathNode> FindPath(int startX, int startY, int endX, int endY)
@@ -30,7 +63,7 @@ public class Pathfinding
         PathNode startNode = grid.GetGridObject(startX, startY);
         PathNode endNode = grid.GetGridObject(endX, endY);
 
-        openList = new List<PathNode> { startNode };
+        bstRoot = null;
         closedList = new List<PathNode>();
 
         for (int x = 0; x < grid.GetWidth(); x++)
@@ -48,15 +81,17 @@ public class Pathfinding
         startNode.hCost = CalculateDistanceCost(startNode, endNode);
         startNode.CalculateFCost();
 
-        while (openList.Count > 0)
+        bstRoot = InsertBST(bstRoot, startNode);
+
+        while (bstRoot != null)
         {
-            PathNode currentNode = GetLowestFCostNode(openList);
+            PathNode currentNode = GetLowestFCostNode(); // Get min from BST
             if (currentNode == endNode)
             {
                 return CalculatePath(endNode);
             }
 
-            openList.Remove(currentNode);
+            bstRoot = DeleteBST(bstRoot, currentNode); // Remove from BST
             closedList.Add(currentNode);
 
             foreach (PathNode neighborNode in GetNeighborList(currentNode))
@@ -64,7 +99,8 @@ public class Pathfinding
                 if (closedList.Contains(neighborNode)) { continue; }
                 if (!neighborNode.isWalkable) { 
                     closedList.Add(neighborNode);
-                    continue; }
+                    continue; 
+                }
 
                 int tentativeGCost = currentNode.gCost + CalculateDistanceCost(currentNode, neighborNode);
                 if (tentativeGCost < neighborNode.gCost)
@@ -74,10 +110,9 @@ public class Pathfinding
                     neighborNode.hCost = CalculateDistanceCost(neighborNode, endNode);
                     neighborNode.CalculateFCost();
 
-                    if (!openList.Contains(neighborNode))
-                    {
-                        openList.Add(neighborNode);
-                    }
+                    // Update in BST
+                    bstRoot = DeleteBST(bstRoot, neighborNode);
+                    bstRoot = InsertBST(bstRoot, neighborNode);
                 }
             }
         }
@@ -110,18 +145,18 @@ public class Pathfinding
             // Left
             neighborList.Add(grid.GetGridObject(currentNode.x - 1, currentNode.y));
             // Left Down
-            if (currentNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(currentNode.x - 1, currentNode.y - 1));
-            // Left Up
-            if (currentNode.y + 1 < grid.GetHeight()) neighborList.Add(grid.GetGridObject(currentNode.x - 1, currentNode.y + 1));
+            // if (currentNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(currentNode.x - 1, currentNode.y - 1));
+            // // Left Up
+            // if (currentNode.y + 1 < grid.GetHeight()) neighborList.Add(grid.GetGridObject(currentNode.x - 1, currentNode.y + 1));
         }
         if (currentNode.x + 1 < grid.GetWidth())
         {
             // Right
             neighborList.Add(grid.GetGridObject(currentNode.x + 1, currentNode.y));
             // Right Down
-            if (currentNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(currentNode.x + 1, currentNode.y - 1));
-            // Right Up
-            if (currentNode.y + 1 < grid.GetHeight()) neighborList.Add(grid.GetGridObject(currentNode.x + 1, currentNode.y + 1));
+            // if (currentNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(currentNode.x + 1, currentNode.y - 1));
+            // // Right Up
+            // if (currentNode.y + 1 < grid.GetHeight()) neighborList.Add(grid.GetGridObject(currentNode.x + 1, currentNode.y + 1));
         }
         // Down
         if (currentNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(currentNode.x, currentNode.y - 1));
@@ -153,7 +188,7 @@ public class Pathfinding
         return path;
     }
 
-    private PathNode GetLowestFCostNode(List<PathNode> pathNodeList)
+    private PathNode GetLowestFCostNode()
     {
         /*
         * Gets the node with the lowest F cost from a list
@@ -161,15 +196,60 @@ public class Pathfinding
         *      pathNodeList: list of PathNodes
         * Returns: PathNode with lowest F cost
         */
-        PathNode lowestFCostNode = pathNodeList[0];
-        for (int i = 1; i < pathNodeList.Count; i++)
+        BSTNode current = bstRoot;
+        while (current.left != null)
         {
-            if (pathNodeList[i].fCost < lowestFCostNode.fCost)
-            {
-                lowestFCostNode = pathNodeList[i];
-            }
+            current = current.left;
         }
-        return lowestFCostNode;
+        return current.pathNode;;
+    }
+
+    private BSTNode InsertBST(BSTNode node, PathNode pathNode)
+    {
+        if (node == null)
+        {
+            return new BSTNode(pathNode);
+        }
+
+        if (pathNode.fCost < node.pathNode.fCost)
+        {
+            node.left = InsertBST(node.left, pathNode);
+        }
+        else
+        {
+            node.right = InsertBST(node.right, pathNode);
+        }
+
+        return node;
+    }
+
+    private BSTNode DeleteBST(BSTNode node, PathNode pathNode)
+    {
+        if (node == null) return null;
+
+        if (pathNode.fCost < node.pathNode.fCost)
+        {
+            node.left = DeleteBST(node.left, pathNode);
+        }
+        else if (pathNode.fCost > node.pathNode.fCost)
+        {
+            node.right = DeleteBST(node.right, pathNode);
+        }
+        else if (node.pathNode == pathNode)
+        {
+            if (node.left == null) return node.right;
+            if (node.right == null) return node.left;
+
+            BSTNode minRight = node.right;
+            while (minRight.left != null)
+            {
+                minRight = minRight.left;
+            }
+            node.pathNode = minRight.pathNode;
+            node.right = DeleteBST(node.right, minRight.pathNode);
+        }
+
+        return node;
     }
 
     private int CalculateDistanceCost(PathNode a, PathNode b)
@@ -185,5 +265,19 @@ public class Pathfinding
         int yDistance = Mathf.Abs(a.y - b.y);
         int remaining = Mathf.Abs(xDistance - yDistance);
         return MOVE_DIAGONAL_COST * Mathf.Min(xDistance, yDistance) + MOVE_STRAIGHT_COST * remaining;
+    }
+}
+
+public class BSTNode
+{
+    public PathNode pathNode;
+    public BSTNode left;
+    public BSTNode right;
+
+    public BSTNode(PathNode pathNode)
+    {
+        this.pathNode = pathNode;
+        this.left = null;
+        this.right = null;
     }
 }

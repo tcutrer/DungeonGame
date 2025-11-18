@@ -20,7 +20,7 @@ public class PathTesting : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(1))
         {
             if (mainCamera != null) {
                 Vector3 mouseScreenPosition = Input.mousePosition;
@@ -37,6 +37,22 @@ public class PathTesting : MonoBehaviour
                     Debug.DrawLine(new Vector3(path[i].x, path[i].y) * 10f + new Vector3(-95f, -65f), new Vector3(path[i + 1].x, path[i + 1].y) * 10f + new Vector3(-95f, -65f), Color.green, 5f
                     );
                 }
+            }
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (mainCamera != null) {
+                Vector3 mouseScreenPosition = Input.mousePosition;
+                mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
+                mouseWorldPosition.z = 0f;
+            }
+            int x, y;
+            pathfinding.GetGrid().GetXY(mouseWorldPosition, out x, out y);
+            PathNode node = pathfinding.GetGrid().GetGridObject(x, y);
+            if (node != null)
+            {
+                node.isWalkable = !node.isWalkable;
             }
         }
     }
