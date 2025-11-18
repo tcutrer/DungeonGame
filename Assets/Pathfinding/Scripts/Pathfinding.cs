@@ -201,17 +201,3 @@ public class Pathfinding
         return MOVE_DIAGONAL_COST * Mathf.Min(xDistance, yDistance) + MOVE_STRAIGHT_COST * remaining;
     }
 }
-
-public class BSTNode
-{
-    public PathNode pathNode;
-    public BSTNode left;
-    public BSTNode right;
-
-    public BSTNode(PathNode pathNode)
-    {
-        this.pathNode = pathNode;
-        this.left = null;
-        this.right = null;
-    }
-}
