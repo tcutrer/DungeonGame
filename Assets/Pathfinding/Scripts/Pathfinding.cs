@@ -11,7 +11,7 @@ public class Pathfinding
     public static Pathfinding Instance { get; private set; }
 
     private Grid<PathNode> grid;
-    private BSTNode bstRoot;
+    private BinarySearchTree openList;
     private List<PathNode> closedList;
     public Pathfinding(int width, int height)
     {
@@ -63,7 +63,7 @@ public class Pathfinding
         PathNode startNode = grid.GetGridObject(startX, startY);
         PathNode endNode = grid.GetGridObject(endX, endY);
 
-        bstRoot = null;
+        openList = new BinarySearchTree();
         closedList = new List<PathNode>();
 
         for (int x = 0; x < grid.GetWidth(); x++)
@@ -81,17 +81,17 @@ public class Pathfinding
         startNode.hCost = CalculateDistanceCost(startNode, endNode);
         startNode.CalculateFCost();
 
-        bstRoot = InsertBST(bstRoot, startNode);
+        openList.Insert(startNode);
 
-        while (bstRoot != null)
+        while (!openList.IsEmpty())
         {
-            PathNode currentNode = GetLowestFCostNode(); // Get min from BST
+            PathNode currentNode = openList.GetLowestFCostNode();
             if (currentNode == endNode)
             {
                 return CalculatePath(endNode);
             }
 
-            bstRoot = DeleteBST(bstRoot, currentNode); // Remove from BST
+            openList.Delete(currentNode);  // Changed from bstRoot = DeleteBST(...)
             closedList.Add(currentNode);
 
             foreach (PathNode neighborNode in GetNeighborList(currentNode))
@@ -110,9 +110,8 @@ public class Pathfinding
                     neighborNode.hCost = CalculateDistanceCost(neighborNode, endNode);
                     neighborNode.CalculateFCost();
 
-                    // Update in BST
-                    bstRoot = DeleteBST(bstRoot, neighborNode);
-                    bstRoot = InsertBST(bstRoot, neighborNode);
+                    openList.Delete(neighborNode);  // Changed from bstRoot = DeleteBST(...)
+                    openList.Insert(neighborNode);  // Changed from bstRoot = InsertBST(...)
                 }
             }
         }
@@ -187,71 +186,6 @@ public class Pathfinding
         path.Reverse();
         return path;
     }
-
-    private PathNode GetLowestFCostNode()
-    {
-        /*
-        * Gets the node with the lowest F cost from a list
-        * Parameters:
-        *      pathNodeList: list of PathNodes
-        * Returns: PathNode with lowest F cost
-        */
-        BSTNode current = bstRoot;
-        while (current.left != null)
-        {
-            current = current.left;
-        }
-        return current.pathNode;;
-    }
-
-    private BSTNode InsertBST(BSTNode node, PathNode pathNode)
-    {
-        if (node == null)
-        {
-            return new BSTNode(pathNode);
-        }
-
-        if (pathNode.fCost < node.pathNode.fCost)
-        {
-            node.left = InsertBST(node.left, pathNode);
-        }
-        else
-        {
-            node.right = InsertBST(node.right, pathNode);
-        }
-
-        return node;
-    }
-
-    private BSTNode DeleteBST(BSTNode node, PathNode pathNode)
-    {
-        if (node == null) return null;
-
-        if (pathNode.fCost < node.pathNode.fCost)
-        {
-            node.left = DeleteBST(node.left, pathNode);
-        }
-        else if (pathNode.fCost > node.pathNode.fCost)
-        {
-            node.right = DeleteBST(node.right, pathNode);
-        }
-        else if (node.pathNode == pathNode)
-        {
-            if (node.left == null) return node.right;
-            if (node.right == null) return node.left;
-
-            BSTNode minRight = node.right;
-            while (minRight.left != null)
-            {
-                minRight = minRight.left;
-            }
-            node.pathNode = minRight.pathNode;
-            node.right = DeleteBST(node.right, minRight.pathNode);
-        }
-
-        return node;
-    }
-
     private int CalculateDistanceCost(PathNode a, PathNode b)
     {
         /*
