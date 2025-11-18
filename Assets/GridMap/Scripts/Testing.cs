@@ -85,24 +85,24 @@ public class Testing : MonoBehaviour {
         {
             Vector2 scrollDelta = Mouse.current.scroll.ReadValue();
 
-            // Scroll up to go to next sprite
-            if (scrollDelta.y > 0f)
+            if (scrollDelta.y != 0f && testSpriteObject != null)
             {
                 SpriteChanger spriteChanger = testSpriteObject.GetComponent<SpriteChanger>();
                 if (spriteChanger != null) {
-                    spriteChanger.ChangeSprite();
-                }
-            }
-            // Scroll down to go to previous sprite
-            if (scrollDelta.y < 0f)
-            {
-                SpriteChanger spriteChanger = testSpriteObject.GetComponent<SpriteChanger>();
-                if (spriteChanger != null) {
-                    int newIndex = spriteChanger.GetCurrentSpriteIndex() - 1;
-                    if (newIndex < 0) {
-                        newIndex = spriteChanger.GetTotalSprites() - 1;
+                    // Scroll up to go to next sprite
+                    if (scrollDelta.y > 0f)
+                    {
+                        spriteChanger.ChangeSprite();
                     }
-                    spriteChanger.ChangeSprite(newIndex);
+                    // Scroll down to go to previous sprite
+                    else if (scrollDelta.y < 0f)
+                    {
+                        int newIndex = spriteChanger.GetCurrentSpriteIndex() - 1;
+                        if (newIndex < 0) {
+                            newIndex = spriteChanger.GetTotalSprites() - 1;
+                        }
+                        spriteChanger.ChangeSprite(newIndex);
+                    }
                 }
             }
         }

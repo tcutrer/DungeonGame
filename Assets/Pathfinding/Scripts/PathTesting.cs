@@ -5,28 +5,36 @@ using UnityEngine;
 
 public class PathTesting : MonoBehaviour
 {
+    public Camera mainCamera;
+    public Vector3 mouseWorldPosition;
     private Pathfinding pathfinding;
+    private List<PathNode> path;
     void Start()
     {
-        Pathfinding pathfinding = new Pathfinding(20, 14);
+        pathfinding = new Pathfinding(20, 14);
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+        }
     }
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            pathfinding.GetGrid().GetXY(mouseWorldPosition, out int x, out int y);
-            List<PathNode> path = pathfinding.FindPath(0, 0, x, y);
+            if (mainCamera != null) {
+                Vector3 mouseScreenPosition = Input.mousePosition;
+                mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
+                mouseWorldPosition.z = 0f;
+            }
+            int x, y;
+            pathfinding.GetGrid().GetXY(mouseWorldPosition, out x, out y);
+            path = pathfinding.FindPath(0, 0, x, y);
             if (path != null)
             {
-                foreach (PathNode pathNode in path)
+                for (int i=0; i<path.Count - 1; i++)
                 {
-                    Debug.DrawLine(
-                        new Vector3(pathNode.x, pathNode.y) * 10f + new Vector3(5, 5),
-                        new Vector3(pathNode.x, pathNode.y) * 10f + new Vector3(5, 5) + Vector3.up * 5f,
-                        Color.green,
-                        5f
+                    Debug.DrawLine(new Vector3(path[i].x, path[i].y) * 10f + new Vector3(-95f, -65f), new Vector3(path[i + 1].x, path[i + 1].y) * 10f + new Vector3(-95f, -65f), Color.green, 5f
                     );
                 }
             }

@@ -13,7 +13,7 @@ public class Pathfinding
     private List<PathNode> closedList;
     public Pathfinding(int width, int height)
     {
-        grid = new Grid<PathNode>(width, height, 10f, Vector3.zero, (Grid<PathNode> g, int x, int y) => new PathNode(g, x, y));
+        grid = new Grid<PathNode>(width, height, 10f, new Vector3(-100f , -70f), (Grid<PathNode> g, int x, int y) => new PathNode(g, x, y), true);
     }
 
     public List<PathNode> FindPath(int startX, int startY, int endX, int endY)
@@ -61,10 +61,10 @@ public class Pathfinding
 
             foreach (PathNode neighborNode in GetNeighborList(currentNode))
             {
-                if (closedList.Contains(neighborNode))
-                {
-                    continue;
-                }
+                if (closedList.Contains(neighborNode)) { continue; }
+                if (!neighborNode.isWalkable) { 
+                    closedList.Add(neighborNode);
+                    continue; }
 
                 int tentativeGCost = currentNode.gCost + CalculateDistanceCost(currentNode, neighborNode);
                 if (tentativeGCost < neighborNode.gCost)
