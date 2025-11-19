@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Game_Manger : MonoBehaviour
 {
@@ -7,6 +8,8 @@ public class Game_Manger : MonoBehaviour
     private float Cycle_time = 0f;
     private int Unit_nums = 0;
     private int Phase = 0;
+
+    public static Game_Manger instance { get; private set; }
 
     // Getters
     public bool Get_Is_play()
@@ -45,6 +48,19 @@ public class Game_Manger : MonoBehaviour
     }
 
     // Other Methods
+
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+    }
     
 
     // // Start is called once before the first execution of Update after the MonoBehaviour is created
