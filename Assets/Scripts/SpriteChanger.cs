@@ -43,4 +43,41 @@ public class SpriteChanger : MonoBehaviour
     {
         return availableSprites.Length;
     }
+
+    public Sprite GetCurrentSprite()
+    {
+        return spriteRenderer.sprite;
+    }
+
+    public Sprite GetSpriteAtIndex(int index)
+    {
+        if (index < 0 || index >= availableSprites.Length)
+        {
+            Debug.LogWarning("Index out of bounds in GetSpriteAtIndex!");
+            return null;
+        }
+        return availableSprites[index];
+    }
+
+    public void SetSpriteAtIndex(int index)
+    {
+        if (index < 0 || index >= availableSprites.Length)
+        {
+            Debug.LogWarning("Index out of bounds in SetSpriteAtIndex!");
+            return;
+        }
+        currentSpriteIndex = index;
+        spriteRenderer.sprite = availableSprites[index];
+    }
+
+    public void ResetSprite()
+    {
+        currentSpriteIndex = 0;
+        spriteRenderer.sprite = availableSprites[currentSpriteIndex];
+    }
+
+    public SpriteRenderer getSpriteRenderer()
+    {
+        return spriteRenderer;
+    }
 }
