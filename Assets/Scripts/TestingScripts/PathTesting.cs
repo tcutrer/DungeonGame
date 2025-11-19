@@ -34,7 +34,7 @@ public class PathTesting : MonoBehaviour
             {
                 for (int i=0; i<path.Count - 1; i++)
                 {
-                    Debug.DrawLine(new Vector3(path[i].x, path[i].y) * 10f + new Vector3(-95f, -65f), new Vector3(path[i + 1].x, path[i + 1].y) * 10f + new Vector3(-95f, -65f), Color.green, 5f
+                    Debug.DrawLine(new Vector3(path[i].GetX(), path[i].GetY()) * 10f + new Vector3(-95f, -65f), new Vector3(path[i + 1].GetX(), path[i + 1].GetY()) * 10f + new Vector3(-95f, -65f), Color.green, 5f
                     );
                 }
             }
@@ -52,7 +52,7 @@ public class PathTesting : MonoBehaviour
             PathNode node = pathfinding.GetGrid().GetGridObject(x, y);
             if (node != null)
             {
-                node.isWalkable = !node.isWalkable;
+                node.SetIsWalkable(!node.GetIsWalkable());
             }
         }
     }

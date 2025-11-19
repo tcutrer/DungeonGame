@@ -108,7 +108,7 @@ public class BinarySearchTree
             return new BSTNode(pathNode);
         }
 
-        if (pathNode.fCost < node.getPathNode().fCost)
+        if (pathNode.CalculateFCost() < node.getPathNode().CalculateFCost())
         {
             node.setLeft(InsertBST(node.getLeft(), pathNode));
         }
@@ -124,11 +124,11 @@ public class BinarySearchTree
     {
         if (node == null) return null;
 
-        if (pathNode.fCost < node.getPathNode().fCost)
+        if (pathNode.CalculateFCost() < node.getPathNode().CalculateFCost())
         {
             node.setLeft(DeleteBST(node.getLeft(), pathNode));
         }
-        else if (pathNode.fCost > node.getPathNode().fCost)
+        else if (pathNode.CalculateFCost() > node.getPathNode().CalculateFCost())
         {
             node.setRight(DeleteBST(node.getRight(), pathNode));
         }
