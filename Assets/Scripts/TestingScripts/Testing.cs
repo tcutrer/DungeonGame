@@ -16,22 +16,17 @@ public class Testing : MonoBehaviour {
     private const float DISPLAY_SPRITE_Y = 0f;
     private const float Z_PLANE = 0f;
     private const float WHY_OFFSET = CELL_SIZE / 2f;
+    private Vector3 mouseWorld;
 
     private Grid<GameObject> grid;
-    public Camera mainCamera;
-    public Vector3 mouseWorldPosition;
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
+    private UtilityFunctions utilityFunctions;
 
     // Start is called before the first frame update
     private void Start() {
         testSprite = new Test_Sprite(); // Proper instantiation
         grid = new Grid<GameObject>(GRID_WIDTH, GRID_HEIGHT, CELL_SIZE, new Vector3(GRID_OFFSET_X, GRID_OFFSET_Y), testSprite.CreateSprite);
-        // Ensure mainCamera is assigned
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-        }
         // Position all grid objects correctly
         for (int x = 0; x < GRID_WIDTH; x++)
         {
@@ -54,20 +49,17 @@ public class Testing : MonoBehaviour {
         // Create and position the display sprite for easy to see editing
         testSpriteObject = testSprite.CreateSprite();
         testSpriteObject.transform.position = new Vector3(DISPLAY_SPRITE_X, DISPLAY_SPRITE_Y, Z_PLANE);
+        utilityFunctions = new UtilityFunctions();
     }
 
     // Update is called once per frame
     private void Update() {
         // Update mouse world position
-        if (mainCamera != null) {
-            Vector3 mouseScreenPosition = Input.mousePosition;
-            mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
-            mouseWorldPosition.z = Z_PLANE;
-        }
+        mouseWorld = utilityFunctions.worldMousePosition();
 
         // Handle mouse click to change sprite at mouse position
         if (Input.GetMouseButtonDown(0)) {
-            GameObject obj = grid.GetGridObject(mouseWorldPosition);
+            GameObject obj = grid.GetGridObject(mouseWorld);
             if (obj != null) {
                 SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
                 if (spriteChanger != null) {
