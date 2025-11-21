@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/UI_Scenes/Menu.unity
     guid: 76e364b6c66d1184685b56e78baabdd1
   - enabled: 1
-    path: Assets/GridMap/Textures/GameScene_GridMap.unity
+    path: Assets/Scenes/GameScene_GridMap.unity
     guid: 9757342d569480b4e9e198e4c36e1466
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
