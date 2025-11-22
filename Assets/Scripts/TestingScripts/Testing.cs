@@ -5,42 +5,35 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Testing : MonoBehaviour {
-
-    // Grid configuration constants
-    private const int GRID_WIDTH = 20;
-    private const int GRID_HEIGHT = 14;
-    private const float CELL_SIZE = 10f;
-    private const float GRID_OFFSET_X = -100f;
-    private const float GRID_OFFSET_Y = -70f;
-    private const float DISPLAY_SPRITE_X = -125f;
-    private const float DISPLAY_SPRITE_Y = 0f;
-    private const float Z_PLANE = 0f;
-    private const float WHY_OFFSET = CELL_SIZE / 2f;
     private Vector3 mouseWorld;
 
     private Grid<GameObject> grid;
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
-    private UtilityFunctions utilityFunctions;
+    private UtilityFunctions UF;
 
     // Start is called before the first frame update
     private void Start() {
-        testSprite = new Test_Sprite(); // Proper instantiation
-        grid = new Grid<GameObject>(GRID_WIDTH, GRID_HEIGHT, CELL_SIZE, new Vector3(GRID_OFFSET_X, GRID_OFFSET_Y), testSprite.CreateSprite);
+        UF = new UtilityFunctions();
+        testSprite = new Test_Sprite();
+        grid = new Grid<GameObject>(UF.getGridWidth(), UF.getGridHeight(), UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         // Position all grid objects correctly
-        for (int x = 0; x < GRID_WIDTH; x++)
+        for (int x = 0; x < UF.getGridWidth(); x++)
         {
-            for (int y = 0; y < GRID_HEIGHT; y++)
+            for (int y = 0; y < UF.getGridHeight(); y++)
             {
-                Vector3 position = new Vector3(x * CELL_SIZE + GRID_OFFSET_X + CELL_SIZE / 2f, y * CELL_SIZE + GRID_OFFSET_Y + CELL_SIZE / 2f, Z_PLANE);
+                // Vector3 position = new Vector3(x * CELL_SIZE + GRID_OFFSET_X + CELL_SIZE / 2f, y * CELL_SIZE + GRID_OFFSET_Y + CELL_SIZE / 2f, Z_PLANE);
+                Vector3 position = new Vector3(x * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(), y * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(), UF.getZPlane());
                 GameObject obj = grid.GetGridObject(position);
                 if (obj != null)
                 {
                     // Snap the position to the grid
                     Vector3 snappedPosition = new Vector3(
-                        Mathf.Floor((position.x - GRID_OFFSET_X) / CELL_SIZE) * CELL_SIZE + GRID_OFFSET_X + WHY_OFFSET,
-                        Mathf.Floor((position.y - GRID_OFFSET_Y) / CELL_SIZE) * CELL_SIZE + GRID_OFFSET_Y + WHY_OFFSET,
-                        Z_PLANE
+                        // Mathf.Floor((position.x - GRID_OFFSET_X) / CELL_SIZE) * CELL_SIZE + GRID_OFFSET_X + WHY_OFFSET,
+                        // Mathf.Floor((position.y - GRID_OFFSET_Y) / CELL_SIZE) * CELL_SIZE + GRID_OFFSET_Y + WHY_OFFSET,
+                        Mathf.Floor((position.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                        Mathf.Floor((position.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                        UF.getZPlane()
                     );
                     obj.transform.position = snappedPosition;
                 }
@@ -48,14 +41,13 @@ public class Testing : MonoBehaviour {
         }
         // Create and position the display sprite for easy to see editing
         testSpriteObject = testSprite.CreateSprite();
-        testSpriteObject.transform.position = new Vector3(DISPLAY_SPRITE_X, DISPLAY_SPRITE_Y, Z_PLANE);
-        utilityFunctions = new UtilityFunctions();
+        testSpriteObject.transform.position = new Vector3(UF.getDisplaySpritePosition().x, UF.getDisplaySpritePosition().y, UF.getZPlane());
     }
 
     // Update is called once per frame
     private void Update() {
         // Update mouse world position
-        mouseWorld = utilityFunctions.worldMousePosition();
+        mouseWorld = UF.worldMousePosition();
 
         // Handle mouse click to change sprite at mouse position
         if (Input.GetMouseButtonDown(0)) {

@@ -4,9 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class UtilityFunctions {
+    private const int GRID_WIDTH = 20;
+    private const int GRID_HEIGHT = 14;
+    private const float CELL_SIZE = 10f;
+    private const float GRID_OFFSET_X = -100f;
+    private const float GRID_OFFSET_Y = -70f;
+    private const float DISPLAY_SPRITE_X = -125f;
+    private const float DISPLAY_SPRITE_Y = 0f;
     private const float Z_PLANE = 0f;
-
-    public static Camera mainCamera = Camera.main;
+    private const float WHY_OFFSET = CELL_SIZE / 2f;
+    private static Camera mainCamera = Camera.main;
     private static Vector3 mouseWorldPosition;
 
     public Vector3 worldMousePosition() {
@@ -16,5 +23,33 @@ public class UtilityFunctions {
             mouseWorldPosition.z = Z_PLANE;
         }
         return mouseWorldPosition;
+    }
+
+    public int getGridWidth() {
+        return GRID_WIDTH;
+    }
+
+    public int getGridHeight() {
+        return GRID_HEIGHT;
+    }
+
+    public float getCellSize() {
+        return CELL_SIZE;
+    }
+
+    public Vector3 getGridOffset() {
+        return new Vector3(GRID_OFFSET_X, GRID_OFFSET_Y);
+    }
+
+    public Vector3 getDisplaySpritePosition() {
+        return new Vector3(DISPLAY_SPRITE_X, DISPLAY_SPRITE_Y, Z_PLANE);
+    }
+
+    public float getZPlane() {
+        return Z_PLANE;
+    }
+
+    public float getWhyOffset() {
+        return WHY_OFFSET;
     }
 }
