@@ -52,4 +52,26 @@ public class UtilityFunctions {
     public float getWhyOffset() {
         return WHY_OFFSET;
     }
+
+    public int[,] GetGridArrayTileValues(Grid<GameObject> grid) {
+        int[,] intArray = new int[grid.width, grid.height];
+            for (int x = 0; x < grid.width; x++) {
+                for (int y = 0; y < grid.height; y++) {
+                    SpriteChanger spriteChanger = grid.gridArray[x, y].GetComponent<SpriteChanger>();
+                    if (spriteChanger != null) {
+                        int tile = spriteChanger.GetCurrentSpriteIndex();
+                        switch (tile) {
+                            case 1:
+                                intArray[x, y] = 1;
+                                break;
+                            default:
+                                intArray[x, y] = 0; // Unknown tile
+                                break;
+                        }
+                    }
+                }
+            }
+            return intArray;
+        
+    }
 }

@@ -6,7 +6,8 @@ using UnityEngine.InputSystem;
 
 public class Testing : MonoBehaviour {
     private Vector3 mouseWorld;
-
+    private Pathfinding pathfinding;
+    private List<PathNode> path;
     private Grid<GameObject> grid;
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
@@ -16,6 +17,7 @@ public class Testing : MonoBehaviour {
     private void Start() {
         UF = new UtilityFunctions();
         testSprite = new Test_Sprite();
+        pathfinding = new Pathfinding(UF.getGridWidth(), UF.getGridHeight());
         grid = new Grid<GameObject>(UF.getGridWidth(), UF.getGridHeight(), UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         // Position all grid objects correctly
         for (int x = 0; x < UF.getGridWidth(); x++)
@@ -60,6 +62,28 @@ public class Testing : MonoBehaviour {
                         int costumeIndex = displaySprite.GetCurrentSpriteIndex();
                         spriteChanger.ChangeSprite(costumeIndex);
                     }
+                }
+            }
+        }
+
+        pathfinding.SetWalkables(UF.GetGridArrayTileValues(grid));
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Debug.Log("Right click detected");
+            int x, y;
+            pathfinding.GetGrid().GetXY(mouseWorld, out x, out y);
+            path = pathfinding.FindPath(0, 0, x, y);
+            if (path != null)
+            {
+                Debug.Log("Path found with length: " + path.Count);
+                for (int i=0; i<path.Count - 1; i++)
+                {
+                    Debug.Log("Drawing line from (" + path[i].GetX() + ", " + path[i].GetY() + ") to (" + path[i + 1].GetX() + ", " + path[i + 1].GetY() + ")");
+                    Debug.DrawLine(new Vector3(path[i].GetX(), path[i].GetY()) * UF.getCellSize() +
+                    new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()),
+                    new Vector3(path[i + 1].GetX(), path[i + 1].GetY()) * UF.getCellSize() + new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()), Color.green, 5f
+                    );
                 }
             }
         }

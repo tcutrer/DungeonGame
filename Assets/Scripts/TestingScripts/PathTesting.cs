@@ -5,24 +5,19 @@ using UnityEngine;
 
 public class PathTesting : MonoBehaviour
 {
-    public Camera mainCamera;
     public Vector3 mouseWorld;
     private Pathfinding pathfinding;
     private List<PathNode> path;
-    private UtilityFunctions utilityFunctions;
+    private UtilityFunctions UF;
     void Start()
     {
-        utilityFunctions = new UtilityFunctions();
-        pathfinding = new Pathfinding(utilityFunctions.getGridWidth(), utilityFunctions.getGridHeight());
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-        }
+        UF = new UtilityFunctions();
+        pathfinding = new Pathfinding(UF.getGridWidth(), UF.getGridHeight());
     }
 
     private void Update()
     {
-        mouseWorld = utilityFunctions.worldMousePosition();
+        mouseWorld = UF.worldMousePosition();
         if (Input.GetMouseButtonDown(1))
         {
             int x, y;
@@ -32,22 +27,11 @@ public class PathTesting : MonoBehaviour
             {
                 for (int i=0; i<path.Count - 1; i++)
                 {
-                    Debug.DrawLine(new Vector3(path[i].GetX(), path[i].GetY()) * utilityFunctions.getCellSize() +
-                    new Vector3(-utilityFunctions.getGridOffset().x + utilityFunctions.getWhyOffset(), -utilityFunctions.getGridOffset().y + utilityFunctions.getWhyOffset()),
-                    new Vector3(path[i + 1].GetX(), path[i + 1].GetY()) * utilityFunctions.getCellSize() + new Vector3(-utilityFunctions.getGridOffset().x + utilityFunctions.getWhyOffset(), -utilityFunctions.getGridOffset().y + utilityFunctions.getWhyOffset()), Color.green, 5f
+                    Debug.DrawLine(new Vector3(path[i].GetX(), path[i].GetY()) * UF.getCellSize() +
+                    new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()),
+                    new Vector3(path[i + 1].GetX(), path[i + 1].GetY()) * UF.getCellSize() + new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()), Color.green, 5f
                     );
                 }
-            }
-        }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            int x, y;
-            pathfinding.GetGrid().GetXY(mouseWorld, out x, out y);
-            PathNode node = pathfinding.GetGrid().GetGridObject(x, y);
-            if (node != null)
-            {
-                node.SetIsWalkable(!node.GetIsWalkable());
             }
         }
     }
