@@ -33,11 +33,11 @@ public class Grid<TGridObject> { // Generic Grid class using Templates to allow 
     *
     * Notes:
     */
-    private int width;
-    private int height;
+    public int width{ get; private set; }
+    public int height{ get; private set; }
     private float cellSize;
     private Vector3 originPosition;
-    private TGridObject[,] gridArray;
+    public TGridObject[,] gridArray{ get; private set; }
     private TextMesh[,] debugTextArray;
     private bool showDebug;
 

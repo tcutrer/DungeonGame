@@ -200,4 +200,28 @@ public class Pathfinding
         int remaining = Mathf.Abs(xDistance - yDistance);
         return MOVE_DIAGONAL_COST * Mathf.Min(xDistance, yDistance) + MOVE_STRAIGHT_COST * remaining;
     }
+
+    public void SetWalkables(int[,] walkableArray)
+    {
+        /*
+        * Sets the walkability of nodes based on a 2D array
+        * Parameters:
+        *      walkableArray: 2D int array where 1 = walkable, 0 = not walkable
+        */
+        for (int x = 0; x < grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < grid.GetHeight(); y++)
+            {
+                PathNode pathNode = grid.GetGridObject(x, y);
+                if (walkableArray[x, y] == 1)
+                {
+                    pathNode.SetIsWalkable(true);
+                }
+                else
+                {
+                    pathNode.SetIsWalkable(false);
+                }
+            }
+        }
+    }
 }
