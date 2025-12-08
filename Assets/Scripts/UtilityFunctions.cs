@@ -61,7 +61,7 @@ public class UtilityFunctions {
                     if (spriteChanger != null) {
                         int tile = spriteChanger.GetCurrentSpriteIndex();
                         switch (tile) {
-                            case 1:
+                            case 0:
                                 intArray[x, y] = 1;
                                 break;
                             default:
