@@ -192,6 +192,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: a70a77e4-7600-43ec-b299-549fea69071a
     m_ActionName: 'Gameplay/Drag[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1570040129}
+        m_TargetAssemblyTypeName: Zoom, Assembly-CSharp
+        m_MethodName: OnZoom
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 7d843c29-f4cd-4ddb-b13e-c308d3845daa
+    m_ActionName: 'Gameplay/Zoom[/Mouse/scroll]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Gameplay
@@ -254,6 +270,7 @@ GameObject:
   - component: {fileID: 1570040124}
   - component: {fileID: 1570040127}
   - component: {fileID: 1570040128}
+  - component: {fileID: 1570040129}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -389,6 +406,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 269d7b6b0d13c4b43bbb890784f5b130, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1570040129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1570040123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 464c82d93b058d14bbddeb1392170993, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
