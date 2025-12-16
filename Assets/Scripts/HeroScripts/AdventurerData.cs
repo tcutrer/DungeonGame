@@ -4,6 +4,6 @@ using UnityEngine;
 public class AdventurerData : ScriptableObject
 {
     public int health;
-    public int speed;
+    public float speed;
     public int attackPower;
 }
