@@ -18,6 +18,7 @@ public class Zoom : MonoBehaviour
 
     public void OnZoom(InputAction.CallbackContext context)
     {
+        if (PauseScript.isPaused) return;
         Vector2 value = context.ReadValue<Vector2>();
         float scrollValue = value.y;
         float newSize = _mainCamera.orthographicSize - scrollValue * zoom_sensitivity;

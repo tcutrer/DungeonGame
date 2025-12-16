@@ -17,6 +17,7 @@ public class Cam_Drag : MonoBehaviour
 
     public void OnDrag(InputAction.CallbackContext context)
     {
+        if (PauseScript.isPaused) return;
         if (context.started) _origin = GetMousePosition;
         _isDragging = context.started || context.performed;
 
@@ -24,6 +25,7 @@ public class Cam_Drag : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (PauseScript.isPaused) return;
         if (!_isDragging) return;
 
         _difference = GetMousePosition - transform.position;
