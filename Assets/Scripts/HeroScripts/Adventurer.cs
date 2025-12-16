@@ -28,7 +28,7 @@ public class Adventurer : MonoBehaviour
     {
         UF = new UtilityFunctions();
         SetupAdventurer(adventurerData);
-        pathfinding = new Pathfinding(UF.getGridWidth(), UF.getGridHeight());
+        pathfinding = PathfindingManager.Instance.GetPathfinding();
         transform.position = new Vector3(position.x, position.y, 0);
     }
 
