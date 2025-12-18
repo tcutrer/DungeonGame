@@ -57,6 +57,10 @@ public class Adventurer : MonoBehaviour
 
     private void Move(Vector2 newPosition)
     {
+        if (pathfinding == null)
+        {
+            pathfinding = PathfindingManager.Instance.GetPathfinding();
+        }
         List<Vector3> path = pathfinding.FindPath(transform.position, newPosition);
         if (path == null || path.Count == 0)
             return;
