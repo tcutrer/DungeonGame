@@ -35,7 +35,7 @@ public class Adventurer : MonoBehaviour
     void SetupAdventurer(AdventurerData data)
     {
         health = data.health;
-        speed = data.speed;
+        speed = data.speed * 10;
         attackPower = data.attackPower;
         position = new Vector2(-35, -35);
     }
