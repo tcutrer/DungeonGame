@@ -13,11 +13,13 @@ public class Testing : MonoBehaviour {
     private GameObject testSpriteObject;
     private UtilityFunctions UF;
 
+    private void Awake() {
+    }
     // Start is called before the first frame update
     private void Start() {
-        UF = new UtilityFunctions();
         testSprite = new Test_Sprite();
-        pathfinding = new Pathfinding(UF.getGridWidth(), UF.getGridHeight());
+        UF = new UtilityFunctions();
+        pathfinding = PathfindingManager.Instance.GetPathfinding();
         grid = new Grid<GameObject>(UF.getGridWidth(), UF.getGridHeight(), UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         // Position all grid objects correctly
         for (int x = 0; x < UF.getGridWidth(); x++)
