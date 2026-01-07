@@ -12,6 +12,8 @@ public class Testing : MonoBehaviour {
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
     private UtilityFunctions UF;
+    [SerializeField] private GameObject farmerPrefab;
+    private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
     private void Awake() {
     }
@@ -62,6 +64,12 @@ public class Testing : MonoBehaviour {
                     SpriteChanger displaySprite = testSpriteObject.GetComponent<SpriteChanger>();
                     if (displaySprite != null) {
                         int costumeIndex = displaySprite.GetCurrentSpriteIndex();
+                        for (int i = 0; i < creatureCostumes.Count; i++) {
+                            if (costumeIndex == creatureCostumes[i]) {
+                                Instantiate(farmerPrefab);
+                                costumeIndex = 0;
+                            }
+                        }
                         spriteChanger.ChangeSprite(costumeIndex);
                     }
                 }
