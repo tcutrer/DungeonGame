@@ -29,15 +29,40 @@ public class Adventurer : MonoBehaviour
         UF = new UtilityFunctions();
         SetupAdventurer(adventurerData);
         pathfinding = PathfindingManager.Instance.GetPathfinding();
-        transform.position = new Vector3(position.x, position.y, 0);
+        // transform.position = new Vector3(position.x, position.y, -2);
     }
 
     void SetupAdventurer(AdventurerData data)
     {
-        health = data.health;
-        speed = data.speed * 10;
-        attackPower = data.attackPower;
+        if (data == null)
+        {
+            Debug.LogWarning("AdventurerData is not assigned!");
+            health = 100;
+            speed = 5f * 10;
+            attackPower = 10;
+        }
+        else
+        {
+            health = data.health;
+            speed = data.speed * 10;
+            attackPower = data.attackPower;
+        }
         position = new Vector2(-35, -35);
+    }
+
+    public static Adventurer CreateAdventurer(GameObject prefab, Vector3 spawnPosition)
+    {
+        if (prefab == null) {
+            Debug.LogError("Prefab is null!");
+            return null;
+        }
+        GameObject instance = GameObject.Instantiate(prefab);
+        instance.SetActive(true);
+        Adventurer adventurer = instance.GetComponent<Adventurer>();
+        if (adventurer != null) {
+            adventurer.transform.position = spawnPosition;
+        }
+        return adventurer;
     }
 
     // Update is called once per frame

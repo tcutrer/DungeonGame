@@ -14,6 +14,7 @@ public class Testing : MonoBehaviour {
     private UtilityFunctions UF;
     [SerializeField] private GameObject farmerPrefab;
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    private Adventurer adventurer;
 
     private void Awake() {
     }
@@ -66,7 +67,12 @@ public class Testing : MonoBehaviour {
                         int costumeIndex = displaySprite.GetCurrentSpriteIndex();
                         for (int i = 0; i < creatureCostumes.Count; i++) {
                             if (costumeIndex == creatureCostumes[i]) {
-                                Instantiate(farmerPrefab);
+                                Vector3 snappedPosition = new Vector3(
+                                    Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                                    Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                                    UF.getZPlane()
+                                );
+                                adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
                                 costumeIndex = 0;
                             }
                         }
