@@ -28,7 +28,7 @@ public class PlaceBlock : MonoBehaviour
             Debug.LogError("PlaceBlock: Game_Manger instance is null!");
             return;
         }
-
+        if (PauseScript.isPaused) return;
         Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorld.z = 0f;
 
