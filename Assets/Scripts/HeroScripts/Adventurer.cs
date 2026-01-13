@@ -15,6 +15,8 @@ public class Adventurer : MonoBehaviour
     public string id { get; private set; }
     private List<Vector3> currentPath;
     private Coroutine movementCoroutine;
+    public Vector2 finalDestination { get; private set; }
+    public Vector2 currentDestination { get; private set; }
 
     void Awake()
     {
@@ -104,6 +106,7 @@ public class Adventurer : MonoBehaviour
         while (pathIndex < path.Count)
         {
             Vector3 targetPosition = path[pathIndex];
+            currentDestination = targetPosition;
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
                 transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
@@ -116,6 +119,7 @@ public class Adventurer : MonoBehaviour
     private Vector2 FindDesiredPosition()
     {
         // Placeholder for pathfinding logic to determine desired position
-        return new Vector2(5 , 5);
+        finalDestination = new Vector2(5, 5);
+        return finalDestination;
     }
 }
