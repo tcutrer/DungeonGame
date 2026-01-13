@@ -17,6 +17,9 @@ public class Game_Manger : MonoBehaviour
     private Pathfinding pathfinding;
     private List<PathNode> path;
     private UtilityFunctions UF;
+    [SerializeField] private GameObject farmerPrefab;
+    private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    private Adventurer adventurer;
     
 
 
@@ -122,21 +125,28 @@ public class Game_Manger : MonoBehaviour
             return;
         }
 
-        GameObject obj = grid.GetGridObject(position);
-
-        if (obj != null)
-        {
-            SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
-            if (spriteChanger != null)
-            {
-                SpriteChanger displaySprite = testSpriteObject.GetComponent<SpriteChanger>();
-                if (displaySprite != null)
-                {
-                    int costumeIndex = displaySprite.GetCurrentSpriteIndex();
-                    spriteChanger.ChangeSprite(costumeIndex);
+       GameObject obj = grid.GetGridObject(mouseWorld);
+            if (obj != null) {
+                SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
+                if (spriteChanger != null) {
+                    SpriteChanger displaySprite = testSpriteObject.GetComponent<SpriteChanger>();
+                    if (displaySprite != null) {
+                        int costumeIndex = displaySprite.GetCurrentSpriteIndex();
+                        for (int i = 0; i < creatureCostumes.Count; i++) {
+                            if (costumeIndex == creatureCostumes[i]) {
+                                Vector3 snappedPosition = new Vector3(
+                                    Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                                    Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                                    UF.getZPlane()
+                                );
+                                adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
+                                costumeIndex = 0;
+                            }
+                        }
+                        spriteChanger.ChangeSprite(costumeIndex);
+                    }
                 }
             }
-        }
     }
 
     private void Update()
@@ -196,4 +206,5 @@ public class Game_Manger : MonoBehaviour
                 }
             }
         }
-    }}
+    }
+    }
