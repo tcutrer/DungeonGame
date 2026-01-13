@@ -74,4 +74,9 @@ public class UtilityFunctions {
             return intArray;
         
     }
+
+    public void setBlockedTile(GameObject obj, Grid<GameObject> grid)
+    {
+        grid.SetGridObject(obj.transform.position, obj);
+    }
 }
