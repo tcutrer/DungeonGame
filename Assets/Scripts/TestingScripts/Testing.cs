@@ -52,6 +52,8 @@ public class Testing : MonoBehaviour {
         mouseWorld = UF.worldMousePosition();
 
         // Handle mouse click to change sprite at mouse position
+        // COMMENTED OUT - Now handled by PlaceBlock.cs with PlayerInput
+        /*
         if (Input.GetMouseButtonDown(0)) {
             GameObject obj = grid.GetGridObject(mouseWorld);
             if (obj != null) {
@@ -65,6 +67,7 @@ public class Testing : MonoBehaviour {
                 }
             }
         }
+        */
 
         pathfinding.SetWalkables(UF.GetGridArrayTileValues(grid));
 
