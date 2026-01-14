@@ -78,17 +78,25 @@ public class Adventurer : MonoBehaviour
 
     private void FollowPath()
     {
+        if (pathfinding == null)
+        {
+            pathfinding = PathfindingManager.Instance.GetPathfinding();
+        }
         Vector2 desiredPosition = FindDesiredPosition();
         Move(desiredPosition);
     }
 
     private void Move(Vector2 newPosition)
     {
-        if (pathfinding == null)
-        {
-            pathfinding = PathfindingManager.Instance.GetPathfinding();
-        }
-        List<Vector3> path = pathfinding.FindPath(transform.position, newPosition);
+        // Get current position as grid coordinates
+        int startX = Mathf.RoundToInt(transform.position.x / 10f);
+        int startY = Mathf.RoundToInt(transform.position.y / 10f);
+        
+        // Convert newPosition to grid coordinates
+        int endX = Mathf.RoundToInt(newPosition.x / 10f);
+        int endY = Mathf.RoundToInt(newPosition.y / 10f);
+        
+        List<PathNode> path = pathfinding.FindPath(startX, startY, endX, endY);
         if (path == null || path.Count == 0)
             return;
         if (movementCoroutine != null)
@@ -99,13 +107,13 @@ public class Adventurer : MonoBehaviour
         movementCoroutine = StartCoroutine(MoveAlongPath(path));
     }
 
-    private IEnumerator MoveAlongPath(List<Vector3> path)
+    private IEnumerator MoveAlongPath(List<PathNode> path)
     {
         int pathIndex = 0;
 
         while (pathIndex < path.Count)
         {
-            Vector3 targetPosition = path[pathIndex];
+            Vector3 targetPosition = new Vector3(path[pathIndex].GetX() * 10f, path[pathIndex].GetY() * 10f, -1f);
             currentDestination = targetPosition;
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
@@ -118,8 +126,11 @@ public class Adventurer : MonoBehaviour
 
     private Vector2 FindDesiredPosition()
     {
+        int[,] tileValues = Game_Manger.instance.tileValues;
         // Placeholder for pathfinding logic to determine desired position
-        finalDestination = new Vector2(5, 5);
+        // finalDestination = new Vector2(5, 5);
         return finalDestination;
     }
+
+    
 }

@@ -62,7 +62,10 @@ public class UtilityFunctions {
                         int tile = spriteChanger.GetCurrentSpriteIndex();
                         switch (tile) {
                             case 0:
-                                intArray[x, y] = 1;
+                                intArray[x, y] = 1; // Walkable tile
+                                break;
+                                case 1:
+                                intArray[x, y] = 2; // Desired tile
                                 break;
                             default:
                                 intArray[x, y] = 0; // Unknown tile

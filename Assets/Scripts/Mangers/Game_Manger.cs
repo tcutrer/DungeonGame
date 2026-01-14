@@ -20,6 +20,7 @@ public class Game_Manger : MonoBehaviour
     [SerializeField] private GameObject farmerPrefab;
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
+    public int[,] tileValues { get; private set; }
     
 
 
@@ -159,7 +160,8 @@ public class Game_Manger : MonoBehaviour
         {
             pathfinding = PathfindingManager.Instance.GetPathfinding();
         }
-        pathfinding.SetWalkables(UF.GetGridArrayTileValues(grid));
+        tileValues = UF.GetGridArrayTileValues(grid);
+        pathfinding.SetWalkables(tileValues);
 
         // Handle right click for pathfinding
         if (Input.GetMouseButtonDown(1))
