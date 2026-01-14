@@ -49,7 +49,7 @@ public class Adventurer : MonoBehaviour
             speed = data.speed * 10;
             attackPower = data.attackPower;
         }
-        position = new Vector2(-35, -35);
+        position = new Vector3(-35, -35, -1);
     }
 
     public static Adventurer CreateAdventurer(GameObject prefab, Vector3 spawnPosition)

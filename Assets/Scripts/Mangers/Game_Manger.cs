@@ -81,7 +81,7 @@ public class Game_Manger : MonoBehaviour
         // Initialize utilities and sprites
         UF = new UtilityFunctions();
         testSprite = new Test_Sprite();
-        pathfinding = new Pathfinding(UF.getGridWidth(), UF.getGridHeight());
+        pathfinding = PathfindingManager.Instance.GetPathfinding();
         
         // Initialize grid
         grid = new Grid<GameObject>(UF.getGridWidth(), UF.getGridHeight(), UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
@@ -155,6 +155,10 @@ public class Game_Manger : MonoBehaviour
         mouseWorld = UF.worldMousePosition();
 
         // Set walkables for pathfinding
+        if (pathfinding == null)
+        {
+            pathfinding = PathfindingManager.Instance.GetPathfinding();
+        }
         pathfinding.SetWalkables(UF.GetGridArrayTileValues(grid));
 
         // Handle right click for pathfinding

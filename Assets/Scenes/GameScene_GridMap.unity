@@ -437,8 +437,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 531475488}
-  - component: {fileID: 531475487}
   - component: {fileID: 531475489}
+  - component: {fileID: 531475487}
   m_Layer: 0
   m_Name: GameManagerHolder
   m_TagString: Untagged
