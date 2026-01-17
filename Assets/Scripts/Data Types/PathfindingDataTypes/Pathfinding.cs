@@ -51,6 +51,7 @@ public class Pathfinding
 
     public List<PathNode> FindPath(int startX, int startY, int endX, int endY)
     {
+        
         /*
         * Finds a path from start to end using A* algorithm
         * Parameters:
@@ -60,9 +61,27 @@ public class Pathfinding
         *      endY: ending y in grid coords
         * Returns: list of PathNodes representing the path
         */
+        if (grid == null)
+        {
+            Debug.LogError("Grid is null in Pathfinding.FindPath()!");
+            return null;
+        }
+
         PathNode startNode = grid.GetGridObject(startX, startY);
         PathNode endNode = grid.GetGridObject(endX, endY);
 
+        if (startNode == null)
+        {
+            Debug.LogError("Start node is null in Pathfinding.FindPath()!");
+            return null;
+        }
+
+        if (endNode == null)
+        {
+            Debug.LogError("End node is null in Pathfinding.FindPath()!");
+            return null;
+        }
+        
         openList = new BinarySearchTree();
         closedList = new List<PathNode>();
 

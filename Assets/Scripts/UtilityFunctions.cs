@@ -78,6 +78,14 @@ public class UtilityFunctions {
         
     }
 
+    public Vector3 GridToWorldCoords(Vector3 GridCoords)
+    {
+        Vector3 worldCoords = new Vector3();
+        worldCoords.x = GridCoords.x * CELL_SIZE + GRID_OFFSET_X + (CELL_SIZE / 2f);
+        worldCoords.y = GridCoords.y * CELL_SIZE + GRID_OFFSET_Y + (CELL_SIZE / 2f);
+        return worldCoords;
+    }
+
     public void setBlockedTile(GameObject obj, Grid<GameObject> grid)
     {
         grid.SetGridObject(obj.transform.position, obj);

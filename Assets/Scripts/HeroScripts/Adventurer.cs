@@ -31,7 +31,6 @@ public class Adventurer : MonoBehaviour
         UF = new UtilityFunctions();
         SetupAdventurer(adventurerData);
         pathfinding = PathfindingManager.Instance.GetPathfinding();
-        // transform.position = new Vector3(position.x, position.y, -2);
     }
 
     void SetupAdventurer(AdventurerData data)
@@ -70,6 +69,10 @@ public class Adventurer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (pathfinding == null)
+        {
+            pathfinding = PathfindingManager.Instance.GetPathfinding();
+        }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             FollowPath();
@@ -82,19 +85,29 @@ public class Adventurer : MonoBehaviour
         {
             pathfinding = PathfindingManager.Instance.GetPathfinding();
         }
+        if (pathfinding == null)
+        {
+            Debug.LogError("Pathfinding is null! PathfindingManager may not be initialized.");
+            return;
+        }
         Vector2 desiredPosition = FindDesiredPosition();
         Move(desiredPosition);
     }
 
     private void Move(Vector2 newPosition)
     {
+        Grid<PathNode> grid = pathfinding.GetGrid();
+    if (grid == null)
+    {
+        Debug.LogError("Grid is null in Move()!");
+        return;
+    }
         // Get current position as grid coordinates
-        int startX = Mathf.RoundToInt(transform.position.x / 10f);
-        int startY = Mathf.RoundToInt(transform.position.y / 10f);
+        grid.GetXY(transform.position, out int startX, out int startY);
         
-        // Convert newPosition to grid coordinates
-        int endX = Mathf.RoundToInt(newPosition.x / 10f);
-        int endY = Mathf.RoundToInt(newPosition.y / 10f);
+        // newPosition is already in grid coordinates
+        int endX = (int)newPosition.x;
+        int endY = (int)newPosition.y;
         
         List<PathNode> path = pathfinding.FindPath(startX, startY, endX, endY);
         if (path == null || path.Count == 0)
@@ -111,10 +124,13 @@ public class Adventurer : MonoBehaviour
     {
         int pathIndex = 0;
 
-        while (pathIndex < path.Count)
+         while (pathIndex < path.Count)
         {
-            Vector3 targetPosition = new Vector3(path[pathIndex].GetX() * 10f, path[pathIndex].GetY() * 10f, -1f);
+            // Convert grid coordinates back to world position properly
+            // Grid origin is at (-100, -70) with cell size of 10
+            Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
             currentDestination = targetPosition;
+            
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
                 transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
@@ -128,7 +144,7 @@ public class Adventurer : MonoBehaviour
     {
         int[,] tileValues = Game_Manger.instance.tileValues;
         // Placeholder for pathfinding logic to determine desired position
-        // finalDestination = new Vector2(5, 5);
+        finalDestination = new Vector2(5, 5);
         return finalDestination;
     }
 
