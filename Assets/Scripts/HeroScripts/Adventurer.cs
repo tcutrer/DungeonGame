@@ -17,6 +17,7 @@ public class Adventurer : MonoBehaviour
     private Coroutine movementCoroutine;
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
+    public const int searchRange = 10;
 
     void Awake()
     {
@@ -31,7 +32,6 @@ public class Adventurer : MonoBehaviour
         UF = new UtilityFunctions();
         SetupAdventurer(adventurerData);
         pathfinding = PathfindingManager.Instance.GetPathfinding();
-        // transform.position = new Vector3(position.x, position.y, -2);
     }
 
     void SetupAdventurer(AdventurerData data)
@@ -49,7 +49,7 @@ public class Adventurer : MonoBehaviour
             speed = data.speed * 10;
             attackPower = data.attackPower;
         }
-        position = new Vector2(-35, -35);
+        position = new Vector3(-35, -35, -1);
     }
 
     public static Adventurer CreateAdventurer(GameObject prefab, Vector3 spawnPosition)
@@ -62,6 +62,7 @@ public class Adventurer : MonoBehaviour
         instance.SetActive(true);
         Adventurer adventurer = instance.GetComponent<Adventurer>();
         if (adventurer != null) {
+            spawnPosition.z = -1;
             adventurer.transform.position = spawnPosition;
         }
         return adventurer;
@@ -70,6 +71,10 @@ public class Adventurer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (pathfinding == null)
+        {
+            pathfinding = PathfindingManager.Instance.GetPathfinding();
+        }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             FollowPath();
@@ -78,17 +83,35 @@ public class Adventurer : MonoBehaviour
 
     private void FollowPath()
     {
+        if (pathfinding == null)
+        {
+            pathfinding = PathfindingManager.Instance.GetPathfinding();
+        }
+        if (pathfinding == null)
+        {
+            Debug.LogError("Pathfinding is null! PathfindingManager may not be initialized.");
+            return;
+        }
         Vector2 desiredPosition = FindDesiredPosition();
         Move(desiredPosition);
     }
 
     private void Move(Vector2 newPosition)
     {
-        if (pathfinding == null)
+        Grid<PathNode> grid = pathfinding.GetGrid();
+        if (grid == null)
         {
-            pathfinding = PathfindingManager.Instance.GetPathfinding();
+            Debug.LogError("Grid is null in Move()!");
+            return;
         }
-        List<Vector3> path = pathfinding.FindPath(transform.position, newPosition);
+        // Get current position as grid coordinates
+        grid.GetXY(transform.position, out int startX, out int startY);
+        
+        // newPosition is already in grid coordinates
+        int endX = (int)newPosition.x;
+        int endY = (int)newPosition.y;
+        
+        List<PathNode> path = pathfinding.FindPath(startX, startY, endX, endY);
         if (path == null || path.Count == 0)
             return;
         if (movementCoroutine != null)
@@ -99,17 +122,23 @@ public class Adventurer : MonoBehaviour
         movementCoroutine = StartCoroutine(MoveAlongPath(path));
     }
 
-    private IEnumerator MoveAlongPath(List<Vector3> path)
+    private IEnumerator MoveAlongPath(List<PathNode> path)
     {
         int pathIndex = 0;
 
-        while (pathIndex < path.Count)
+         while (pathIndex < path.Count)
         {
-            Vector3 targetPosition = path[pathIndex];
+            // Convert grid coordinates back to world position properly
+            // Grid origin is at (-100, -70) with cell size of 10
+            Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
+            targetPosition.z = -1;
             currentDestination = targetPosition;
+            
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+                 Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+                newPosition.z = -1; // Preserve z = -1 after movement
+                transform.position = newPosition;
                 yield return null;
             }
             pathIndex++;
@@ -117,9 +146,45 @@ public class Adventurer : MonoBehaviour
     }
 
     private Vector2 FindDesiredPosition()
-    {
-        // Placeholder for pathfinding logic to determine desired position
-        finalDestination = new Vector2(5, 5);
+    {   
+        // Initialize necessary variables
+        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+        int curX = (int)curGridPos.x;
+        int curY = (int)curGridPos.y;
+        List<Vector2> possibleDestinations = new List<Vector2>();
+        int[,] tileValues = Game_Manger.instance.tileValues;
+
+        // Search within the defined range for desired tiles
+        for (int x = -searchRange; x <= searchRange; x++)
+        {
+            for (int y = -searchRange; y <= searchRange; y++)
+            {
+                int checkX = x + curX;
+                int checkY = y + curY;
+                
+                // Bounds check before accessing the array
+                if (checkX >= 0 && checkX < tileValues.GetLength(0) && 
+                    checkY >= 0 && checkY < tileValues.GetLength(1))
+                {
+                    if (tileValues[checkX, checkY] == 2) // Assuming 2 represents a target tile
+                    {
+                        possibleDestinations.Add(new Vector2(checkX, checkY));
+                    }
+                }
+            }
+        }
+
+        // Select a random destination from the possible ones
+        if (possibleDestinations.Count != 0)
+        {
+            finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
+        }
+        else
+        {
+            finalDestination = curGridPos; // No valid destination found, stay in place(May need better handling)
+        }
         return finalDestination;
     }
+
+    
 }
