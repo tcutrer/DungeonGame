@@ -20,7 +20,7 @@ public class Game_Manger : MonoBehaviour
     [SerializeField] private GameObject farmerPrefab;
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
-    
+    private int selectedSpriteIndex = 0;
 
 
     public static Game_Manger instance { get; private set; }
@@ -107,8 +107,8 @@ public class Game_Manger : MonoBehaviour
         }
         
         // Create and position the display sprite
-        testSpriteObject = testSprite.CreateSprite();
-        testSpriteObject.transform.position = new Vector3(UF.getDisplaySpritePosition().x, UF.getDisplaySpritePosition().y, UF.getZPlane());
+        //testSpriteObject = testSprite.CreateSprite();
+       
     }
     
     public void PlaceBlock(Vector3 position)
@@ -119,34 +119,25 @@ public class Game_Manger : MonoBehaviour
             return;
         }
 
-        if (testSpriteObject == null)
-        {
-            Debug.LogError("testSpriteObject is null in PlaceBlock!");
-            return;
-        }
-
-       GameObject obj = grid.GetGridObject(mouseWorld);
-            if (obj != null) {
-                SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
-                if (spriteChanger != null) {
-                    SpriteChanger displaySprite = testSpriteObject.GetComponent<SpriteChanger>();
-                    if (displaySprite != null) {
-                        int costumeIndex = displaySprite.GetCurrentSpriteIndex();
-                        for (int i = 0; i < creatureCostumes.Count; i++) {
-                            if (costumeIndex == creatureCostumes[i]) {
-                                Vector3 snappedPosition = new Vector3(
-                                    Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
-                                    Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
-                                    UF.getZPlane()
-                                );
-                                adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
-                                costumeIndex = 0;
-                            }
-                        }
-                        spriteChanger.ChangeSprite(costumeIndex);
+        GameObject obj = grid.GetGridObject(mouseWorld);
+        if (obj != null) {
+            SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
+            if (spriteChanger != null) {
+                // Check if selected sprite is a creature costume
+                for (int i = 0; i < creatureCostumes.Count; i++) {
+                    if (selectedSpriteIndex == creatureCostumes[i]) {
+                        Vector3 snappedPosition = new Vector3(
+                            Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                            Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                            UF.getZPlane()
+                        );
+                        adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
+                        break;
                     }
                 }
+                spriteChanger.ChangeSprite(selectedSpriteIndex);
             }
+        }
     }
 
     private void Update()
@@ -183,32 +174,11 @@ public class Game_Manger : MonoBehaviour
         }
 
         // Handle mouse scroll to change display sprite
-        if (Mouse.current != null)
-        {
-            Vector2 scrollDelta = Mouse.current.scroll.ReadValue();
+       
+    }
 
-            if (scrollDelta.y != 0f && testSpriteObject != null)
-            {
-                SpriteChanger spriteChanger = testSpriteObject.GetComponent<SpriteChanger>();
-                if (spriteChanger != null)
-                {
-                    // Scroll up to go to next sprite
-                    if (scrollDelta.y > 0f)
-                    {
-                        spriteChanger.ChangeSprite();
-                    }
-                    // Scroll down to go to previous sprite
-                    else if (scrollDelta.y < 0f)
-                    {
-                        int newIndex = spriteChanger.GetCurrentSpriteIndex() - 1;
-                        if (newIndex < 0)
-                        {
-                            newIndex = spriteChanger.GetTotalSprites() - 1;
-                        }
-                        spriteChanger.ChangeSprite(newIndex);
-                    }
-                }
-            }
-        }
+    public void SelectSprite(int spriteIndex)
+    {
+        selectedSpriteIndex = spriteIndex;
     }
-    }
+}
