@@ -232,7 +232,7 @@ public class Pathfinding
             for (int y = 0; y < grid.GetHeight(); y++)
             {
                 PathNode pathNode = grid.GetGridObject(x, y);
-                if (walkableArray[x, y] == 1)
+                if (walkableArray[x, y] == 1 || walkableArray[x, y] == 2)
                 {
                     pathNode.SetIsWalkable(true);
                 }

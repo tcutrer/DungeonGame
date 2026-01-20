@@ -142,6 +142,7 @@ public class Game_Manger : MonoBehaviour
                                 );
                                 adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
                                 costumeIndex = 0;
+                                break;
                             }
                         }
                         spriteChanger.ChangeSprite(costumeIndex);

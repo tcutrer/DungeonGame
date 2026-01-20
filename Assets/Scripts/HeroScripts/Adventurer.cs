@@ -17,6 +17,7 @@ public class Adventurer : MonoBehaviour
     private Coroutine movementCoroutine;
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
+    public const int searchRange = 10;
 
     void Awake()
     {
@@ -61,6 +62,7 @@ public class Adventurer : MonoBehaviour
         instance.SetActive(true);
         Adventurer adventurer = instance.GetComponent<Adventurer>();
         if (adventurer != null) {
+            spawnPosition.z = -1;
             adventurer.transform.position = spawnPosition;
         }
         return adventurer;
@@ -97,11 +99,11 @@ public class Adventurer : MonoBehaviour
     private void Move(Vector2 newPosition)
     {
         Grid<PathNode> grid = pathfinding.GetGrid();
-    if (grid == null)
-    {
-        Debug.LogError("Grid is null in Move()!");
-        return;
-    }
+        if (grid == null)
+        {
+            Debug.LogError("Grid is null in Move()!");
+            return;
+        }
         // Get current position as grid coordinates
         grid.GetXY(transform.position, out int startX, out int startY);
         
@@ -129,11 +131,14 @@ public class Adventurer : MonoBehaviour
             // Convert grid coordinates back to world position properly
             // Grid origin is at (-100, -70) with cell size of 10
             Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
+            targetPosition.z = -1;
             currentDestination = targetPosition;
             
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+                 Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+                newPosition.z = -1; // Preserve z = -1 after movement
+                transform.position = newPosition;
                 yield return null;
             }
             pathIndex++;
@@ -141,10 +146,43 @@ public class Adventurer : MonoBehaviour
     }
 
     private Vector2 FindDesiredPosition()
-    {
+    {   
+        // Initialize necessary variables
+        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+        int curX = (int)curGridPos.x;
+        int curY = (int)curGridPos.y;
+        List<Vector2> possibleDestinations = new List<Vector2>();
         int[,] tileValues = Game_Manger.instance.tileValues;
-        // Placeholder for pathfinding logic to determine desired position
-        finalDestination = new Vector2(5, 5);
+
+        // Search within the defined range for desired tiles
+        for (int x = -searchRange; x <= searchRange; x++)
+        {
+            for (int y = -searchRange; y <= searchRange; y++)
+            {
+                int checkX = x + curX;
+                int checkY = y + curY;
+                
+                // Bounds check before accessing the array
+                if (checkX >= 0 && checkX < tileValues.GetLength(0) && 
+                    checkY >= 0 && checkY < tileValues.GetLength(1))
+                {
+                    if (tileValues[checkX, checkY] == 2) // Assuming 2 represents a target tile
+                    {
+                        possibleDestinations.Add(new Vector2(checkX, checkY));
+                    }
+                }
+            }
+        }
+
+        // Select a random destination from the possible ones
+        if (possibleDestinations.Count != 0)
+        {
+            finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
+        }
+        else
+        {
+            finalDestination = curGridPos; // No valid destination found, stay in place(May need better handling)
+        }
         return finalDestination;
     }
 
