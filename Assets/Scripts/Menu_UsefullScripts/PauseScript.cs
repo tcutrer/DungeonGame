@@ -5,6 +5,7 @@ public class PauseScript : MonoBehaviour
 {
     public static bool isPaused = false;
     public GameObject pauseMenuUI;
+    public GameObject playerUI;
 
     void Awake()
     {
@@ -29,14 +30,18 @@ public class PauseScript : MonoBehaviour
     void Resume()
     {
         pauseMenuUI.SetActive(false);
+        playerUI.SetActive(true);
         Time.timeScale = 1f;
         isPaused = false;
+
     }
     void Pause()
     {
         pauseMenuUI.SetActive(true);
+        playerUI.SetActive(false);
         Time.timeScale = 0f;
         isPaused = true;
+
     }
 
 }
