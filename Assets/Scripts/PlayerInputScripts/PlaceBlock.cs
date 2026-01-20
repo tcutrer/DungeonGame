@@ -15,8 +15,13 @@ public class PlaceBlock : MonoBehaviour
         }
     }
 
-    public void place()
+    public void place(InputAction.CallbackContext context)
     {
+        if (!context.performed)
+        {
+            return;
+        }
+
         if (_mainCamera == null)
         {
             Debug.LogError("PlaceBlock: Main camera is null!");

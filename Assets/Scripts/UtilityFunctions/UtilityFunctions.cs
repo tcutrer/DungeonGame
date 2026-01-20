@@ -62,7 +62,10 @@ public class UtilityFunctions {
                         int tile = spriteChanger.GetCurrentSpriteIndex();
                         switch (tile) {
                             case 0:
-                                intArray[x, y] = 1;
+                                intArray[x, y] = 1; // Walkable tile
+                                break;
+                            case 4:
+                                intArray[x, y] = 2; // Desired tile
                                 break;
                             default:
                                 intArray[x, y] = 0; // Unknown tile
@@ -73,6 +76,22 @@ public class UtilityFunctions {
             }
             return intArray;
         
+    }
+
+    public Vector3 GridToWorldCoords(Vector3 GridCoords)
+    {
+        Vector3 worldCoords = new Vector3();
+        worldCoords.x = GridCoords.x * CELL_SIZE + GRID_OFFSET_X + (CELL_SIZE / 2f);
+        worldCoords.y = GridCoords.y * CELL_SIZE + GRID_OFFSET_Y + (CELL_SIZE / 2f);
+        return worldCoords;
+    }
+
+    public Vector3 WorldToGridCoords(Vector3 WorldCoords)
+    {
+        Vector3 gridCoords = new Vector3();
+        gridCoords.x = Mathf.FloorToInt((WorldCoords.x - GRID_OFFSET_X) / CELL_SIZE);
+        gridCoords.y = Mathf.FloorToInt((WorldCoords.y - GRID_OFFSET_Y) / CELL_SIZE);
+        return gridCoords;
     }
 
     public void setBlockedTile(GameObject obj, Grid<GameObject> grid)
