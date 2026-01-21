@@ -17,7 +17,7 @@ public class Adventurer : MonoBehaviour
     private Coroutine movementCoroutine;
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
-    public const int searchRange = 10;
+    public const int searchRange = 15;
 
     void Awake()
     {
@@ -79,6 +79,16 @@ public class Adventurer : MonoBehaviour
         {
             FollowPath();
         }
+    }
+
+    public void Death(int goldReward)
+    {
+        CurrencyManager currencyManager = CurrencyManager.Instance;
+        if (currencyManager != null)
+        {
+            currencyManager.AddGold(goldReward);
+        }
+        Destroy(gameObject);
     }
 
     private void FollowPath()

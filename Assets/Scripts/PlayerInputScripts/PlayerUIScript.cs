@@ -13,7 +13,7 @@ public class PlayerUIScript : MonoBehaviour
     public Sprite[] spriteImages = new Sprite[16];
     
     // List of all available sprites (costume indices)
-    private List<int> allSprites = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    private List<int> allSprites = new List<int> {0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
