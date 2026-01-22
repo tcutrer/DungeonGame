@@ -5,101 +5,76 @@ using System.Collections.Generic;
 public class PlayerUIScript : MonoBehaviour
 {
     private Game_Manger gameManger;
-    private int currentPageIndex = 0; // Track which page of sprites we're viewing
-    private int spritesPerPage = 5; // 5 sprite buttons + 2 arrows
-    
-    public Button[] spriteButtons = new Button[7];
-    public Image[] spriteButtonImages = new Image[5];  // Only the 5 middle buttons
-    public Sprite[] spriteImages = new Sprite[16];
-    
-    // List of all available sprites (costume indices)
-    private List<int> allSprites = new List<int> {0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    private int currentPageIndex = 0; 
+    private int itemsPerPage = 5;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // 0 = Left Arrow, 1 = Right Arrow, 2-6 = Tile Buttons
+    public Button[] spriteButtons = new Button[7];
+    // These are the Image components of buttons 2 through 6
+    public Image[] spriteButtonImages = new Image[5];
+    public Sprite[] spriteImages = new Sprite[10];
+
     void Start()
     {
         gameManger = Game_Manger.instance;
-        
-        // Setup button listeners
+
+        // Arrows (Indices 0 and 1)
+        spriteButtons[0].onClick.AddListener(OnLeftArrowClicked);
+        spriteButtons[1].onClick.AddListener(OnRightArrowClicked);
+
+        // Tile Buttons (Indices 2 through 6)
         for (int i = 0; i < 5; i++)
         {
-            int index = i; // Local copy for closure
-            spriteButtons[i].onClick.AddListener(() => OnSpriteButtonClicked(index));
+            int localIndex = i; // Critical: fix for lambda capture
+            spriteButtons[i + 2].onClick.AddListener(() => OnSpriteButtonClicked(localIndex));
         }
-        
-        // Left arrow (button 5)
-        spriteButtons[5].onClick.AddListener(OnLeftArrowClicked);
-        
-        // Right arrow (button 6)
-        spriteButtons[6].onClick.AddListener(OnRightArrowClicked);
-        
+
         UpdatePageDisplay();
     }
 
-    public void OnSpriteButtonClicked(int buttonIndex)
+    public void OnSpriteButtonClicked(int buttonSlotIndex)
     {
-        // Calculate which sprite from the full list this button represents
-        int spriteIndex = (currentPageIndex * spritesPerPage) + buttonIndex;
+        // Calculate global sprite index based on current page
+        int spriteIndex = (currentPageIndex * itemsPerPage) + buttonSlotIndex;
         
-        if (spriteIndex < allSprites.Count)
+        if (gameManger != null && spriteIndex < spriteImages.Length)
         {
-            int selectedSprite = allSprites[spriteIndex];
-            if (gameManger != null)
-            {
-                gameManger.SelectSprite(selectedSprite);
-            }
-        }
-    }
-    
-    private void OnLeftArrowClicked()
-    {
-        if (currentPageIndex > 0)
-        {
-            currentPageIndex--;
-            UpdatePageDisplay();
-        }
-    }
-    
-    private void OnRightArrowClicked()
-    {
-        // Calculate how many pages exist
-        int totalPages = (allSprites.Count + spritesPerPage - 1) / spritesPerPage;
-        
-        if (currentPageIndex < totalPages - 1)
-        {
-            currentPageIndex++;
-            UpdatePageDisplay();
-        }
-    }
-    
-    private void UpdatePageDisplay()
-    {
-        // Update the 5 sprite buttons with current page sprites
-        for (int i = 0; i < 5; i++)
-        {
-            int spriteIndex = (currentPageIndex * spritesPerPage) + i;
-            
-            if (spriteIndex < allSprites.Count)
-            {
-                // Button should be active and show sprite
-                spriteButtons[i].interactable = true;
-                // Display the image for this sprite
-                if (spriteImages[spriteIndex] != null)
-                {
-                    spriteButtonImages[i].sprite = spriteImages[spriteIndex];
-                }
-            }
-            else
-            {
-                // Disable button if no sprite for this slot
-                spriteButtons[i].interactable = false;
-            }
+            gameManger.SelectSprite(spriteIndex);
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnLeftArrowClicked()
     {
-        
+        // Loop back to page 1 if going left from page 0
+        currentPageIndex = (currentPageIndex == 0) ? 1 : 0;
+        UpdatePageDisplay();
+    }
+
+    private void OnRightArrowClicked()
+    {
+        // Loop back to page 0 if going right from page 1
+        currentPageIndex = (currentPageIndex + 1) % 2; 
+        UpdatePageDisplay();
+    }
+
+    private void UpdatePageDisplay()
+    {
+        int startIdx = currentPageIndex * itemsPerPage;
+
+        for (int i = 0; i < itemsPerPage; i++)
+        {
+            int spriteIdx = startIdx + i;
+
+            if (spriteIdx < spriteImages.Length)
+            {
+                spriteButtons[i + 2].gameObject.SetActive(true);
+                spriteButtonImages[i].sprite = spriteImages[spriteIdx];
+            }
+            else
+            {
+                // Hide or disable buttons if you had fewer than 10 sprites
+                spriteButtons[i + 2].gameObject.SetActive(false);
+            }
+        }
     }
 }

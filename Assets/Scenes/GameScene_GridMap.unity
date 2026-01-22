@@ -2696,22 +2696,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteButtons:
+  - {fileID: 785648325}
+  - {fileID: 1389717983}
   - {fileID: 80613894}
   - {fileID: 984982056}
   - {fileID: 1394424119}
   - {fileID: 140153109}
   - {fileID: 336500917}
   spriteButtonImages:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 80613895}
+  - {fileID: 984982057}
+  - {fileID: 1394424120}
+  - {fileID: 140153110}
+  - {fileID: 336500918}
   spriteImages:
   - {fileID: -6888756438569675735, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: 168918004, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
@@ -2723,6 +2720,7 @@ MonoBehaviour:
   - {fileID: 336007225, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: -1696085195, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: 718728184, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
+  - {fileID: -6888756438569675735, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
 --- !u!114 &1361986173
 MonoBehaviour:
   m_ObjectHideFlags: 0

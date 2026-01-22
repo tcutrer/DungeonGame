@@ -134,7 +134,7 @@ public class Game_Manger : MonoBehaviour
                             UF.getZPlane()
                         );
                         adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
-                        break;
+                        return;
                     }
                 }
                 spriteChanger.ChangeSprite(selectedSpriteIndex);
