@@ -154,29 +154,6 @@ public class Game_Manger : MonoBehaviour
         }
         tileValues = UF.GetGridArrayTileValues(grid);
         pathfinding.SetWalkables(tileValues);
-
-        // Handle right click for pathfinding
-        if (Input.GetMouseButtonDown(1))
-        {
-            Debug.Log("Right click detected");
-            int x, y;
-            pathfinding.GetGrid().GetXY(mouseWorld, out x, out y);
-            path = pathfinding.FindPath(0, 0, x, y);
-            if (path != null)
-            {
-                Debug.Log("Path found with length: " + path.Count);
-                for (int i = 0; i < path.Count - 1; i++)
-                {
-                    Debug.Log("Drawing line from (" + path[i].GetX() + ", " + path[i].GetY() + ") to (" + path[i + 1].GetX() + ", " + path[i + 1].GetY() + ")");
-                    Debug.DrawLine(new Vector3(path[i].GetX(), path[i].GetY()) * UF.getCellSize() +
-                    new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()),
-                    new Vector3(path[i + 1].GetX(), path[i + 1].GetY()) * UF.getCellSize() + new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()), Color.green, 5f
-                    );
-                }
-            }
-        }
-
-        // Handle mouse scroll to change display sprite
        
     }
 
