@@ -33,4 +33,24 @@ public class CurrencyManager : MonoBehaviour
         Debug.Log("Added " + amount + " gold.");
         Gold += amount;
     }
+
+    public bool SpendGold(int amount)
+    {
+        if (Gold >= amount)
+        {
+            Gold -= amount;
+            Debug.Log("Spent " + amount + " gold.");
+            return true;
+        }
+        else
+        {
+            Debug.Log("Not enough gold to spend " + amount + ".");
+            return false;
+        }
+    }
+
+    bool HasEnoughGold(int amount)
+    {
+        return Gold >= amount;
+    }
 }
