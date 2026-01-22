@@ -21,6 +21,7 @@ public class Game_Manger : MonoBehaviour
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
     public int[,] tileValues { get; private set; }
+    private List<int> amountOfRooms = new List<int> {11, 11};
     
     private int selectedSpriteIndex = 0;
 
@@ -86,7 +87,7 @@ public class Game_Manger : MonoBehaviour
         pathfinding = PathfindingManager.Instance.GetPathfinding();
         
         // Initialize grid
-        grid = new Grid<GameObject>(UF.getGridWidth(), UF.getGridHeight(), UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
+        grid = new Grid<GameObject>(UF.getGridWidth() * amountOfRooms[0], UF.getGridHeight() * amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         
         // Position all grid objects correctly
         for (int x = 0; x < UF.getGridWidth(); x++)
@@ -105,12 +106,12 @@ public class Game_Manger : MonoBehaviour
                     );
                     obj.transform.position = snappedPosition;
                 }
+                if (x + 1 % UF.getGridWidth() == 0 && y % UF.getGridHeight() == 0)
+                {
+                    Debug.Log("Positioning grid object at: " + obj.transform.position);
+                }
             }
         }
-        
-        // Create and position the display sprite
-        //testSpriteObject = testSprite.CreateSprite();
-       
     }
     
     public void PlaceBlock(Vector3 position)
