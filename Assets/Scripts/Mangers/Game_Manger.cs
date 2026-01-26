@@ -21,6 +21,7 @@ public class Game_Manger : MonoBehaviour
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
     public int[,] tileValues { get; private set; }
+    private List<int> amountOfRooms = new List<int> {11, 11};
     
     private int selectedSpriteIndex = 0;
 
@@ -86,12 +87,12 @@ public class Game_Manger : MonoBehaviour
         pathfinding = PathfindingManager.Instance.GetPathfinding();
         
         // Initialize grid
-        grid = new Grid<GameObject>(UF.getGridWidth(), UF.getGridHeight(), UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
+        grid = new Grid<GameObject>(UF.getGridWidth() * amountOfRooms[0], UF.getGridHeight() * amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         
         // Position all grid objects correctly
-        for (int x = 0; x < UF.getGridWidth(); x++)
+        for (int x = 0; x < UF.getGridWidth() * amountOfRooms[0]; x++)
         {
-            for (int y = 0; y < UF.getGridHeight(); y++)
+            for (int y = 0; y < UF.getGridHeight() * amountOfRooms[1]; y++)
             {
                 Vector3 position = new Vector3(x * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(), y * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(), UF.getZPlane());
                 GameObject obj = grid.GetGridObject(position);
@@ -105,12 +106,32 @@ public class Game_Manger : MonoBehaviour
                     );
                     obj.transform.position = snappedPosition;
                 }
+                if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) || (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
+                {
+                    GameObject tile = grid.GetGridObject(position);
+                    if (tile != null)
+                    {
+                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                        if (spriteChanger != null)
+                        {
+                            spriteChanger.ChangeSprite(1); // Set wall sprite
+                        }
+                    }
+                }
+                if (x == UF.getGridWidth() / 2 && y == 0)
+                {
+                    GameObject tile = grid.GetGridObject(position);
+                    if (tile != null)
+                    {
+                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                        if (spriteChanger != null)
+                        {
+                            spriteChanger.ChangeSprite(2); // Set door sprite
+                        }
+                    }
+                }
             }
         }
-        
-        // Create and position the display sprite
-        //testSpriteObject = testSprite.CreateSprite();
-       
     }
     
     public void PlaceBlock(Vector3 position)
@@ -154,7 +175,6 @@ public class Game_Manger : MonoBehaviour
         }
         tileValues = UF.GetGridArrayTileValues(grid);
         pathfinding.SetWalkables(tileValues);
-       
     }
 
     public void SelectSprite(int spriteIndex)
