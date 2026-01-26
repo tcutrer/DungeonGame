@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class UtilityFunctions {
-    private const int GRID_WIDTH = 20;
+    private const int GRID_WIDTH = 21;
     private const int GRID_HEIGHT = 14;
     private const float CELL_SIZE = 10f;
     private const float GRID_OFFSET_X = -100f;

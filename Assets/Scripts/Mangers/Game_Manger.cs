@@ -90,9 +90,9 @@ public class Game_Manger : MonoBehaviour
         grid = new Grid<GameObject>(UF.getGridWidth() * amountOfRooms[0], UF.getGridHeight() * amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         
         // Position all grid objects correctly
-        for (int x = 0; x < UF.getGridWidth(); x++)
+        for (int x = 0; x < UF.getGridWidth() * amountOfRooms[0]; x++)
         {
-            for (int y = 0; y < UF.getGridHeight(); y++)
+            for (int y = 0; y < UF.getGridHeight() * amountOfRooms[1]; y++)
             {
                 Vector3 position = new Vector3(x * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(), y * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(), UF.getZPlane());
                 GameObject obj = grid.GetGridObject(position);
@@ -106,9 +106,29 @@ public class Game_Manger : MonoBehaviour
                     );
                     obj.transform.position = snappedPosition;
                 }
-                if (x + 1 % UF.getGridWidth() == 0 && y % UF.getGridHeight() == 0)
+                if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) || (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
                 {
-                    Debug.Log("Positioning grid object at: " + obj.transform.position);
+                    GameObject tile = grid.GetGridObject(position);
+                    if (tile != null)
+                    {
+                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                        if (spriteChanger != null)
+                        {
+                            spriteChanger.ChangeSprite(1); // Set wall sprite
+                        }
+                    }
+                }
+                if (x == UF.getGridWidth() / 2 && y == 0)
+                {
+                    GameObject tile = grid.GetGridObject(position);
+                    if (tile != null)
+                    {
+                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                        if (spriteChanger != null)
+                        {
+                            spriteChanger.ChangeSprite(2); // Set door sprite
+                        }
+                    }
                 }
             }
         }
@@ -155,30 +175,6 @@ public class Game_Manger : MonoBehaviour
         }
         tileValues = UF.GetGridArrayTileValues(grid);
         pathfinding.SetWalkables(tileValues);
-
-        // Handle right click for pathfinding
-        if (Input.GetMouseButtonDown(1))
-        {
-            Debug.Log("Right click detected");
-            int x, y;
-            pathfinding.GetGrid().GetXY(mouseWorld, out x, out y);
-            path = pathfinding.FindPath(0, 0, x, y);
-            if (path != null)
-            {
-                Debug.Log("Path found with length: " + path.Count);
-                for (int i = 0; i < path.Count - 1; i++)
-                {
-                    Debug.Log("Drawing line from (" + path[i].GetX() + ", " + path[i].GetY() + ") to (" + path[i + 1].GetX() + ", " + path[i + 1].GetY() + ")");
-                    Debug.DrawLine(new Vector3(path[i].GetX(), path[i].GetY()) * UF.getCellSize() +
-                    new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()),
-                    new Vector3(path[i + 1].GetX(), path[i + 1].GetY()) * UF.getCellSize() + new Vector3(-UF.getGridOffset().x + UF.getWhyOffset(), -UF.getGridOffset().y + UF.getWhyOffset()), Color.green, 5f
-                    );
-                }
-            }
-        }
-
-        // Handle mouse scroll to change display sprite
-       
     }
 
     public void SelectSprite(int spriteIndex)
