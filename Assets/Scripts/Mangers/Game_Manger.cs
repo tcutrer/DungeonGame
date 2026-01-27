@@ -188,7 +188,7 @@ public class Game_Manger : MonoBehaviour
         {
             time_to_explore += Time.deltaTime;
         }
-        // test stuff
+        
         if (adventurercount <= 0f)
         {
             areExplorersGone = true;
