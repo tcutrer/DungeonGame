@@ -18,6 +18,8 @@ public class Adventurer : MonoBehaviour
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
     public const int searchRange = 15;
+    public Vector2 CurrentTile;
+    public Vector2 PreviousTile;
 
     void Awake()
     {
@@ -140,9 +142,17 @@ public class Adventurer : MonoBehaviour
         {
             // Convert grid coordinates back to world position properly
             // Grid origin is at (-100, -70) with cell size of 10
+            if (pathIndex > 0)
+            {
+                PreviousTile = new Vector2(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY());
+            }
+            CurrentTile = new Vector2(path[pathIndex].GetX(), path[pathIndex].GetY());
             Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
             targetPosition.z = -1;
             currentDestination = targetPosition;
+
+            pathfindingManager.GetPathfinding().SetTileOccupied(oldX, oldY, false);
+            pathfindingManager.GetPathfinding().SetTileOccupied(newX, newY, true);
             
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {

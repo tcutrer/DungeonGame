@@ -9,6 +9,7 @@ public class Pathfinding
     private const int MOVE_DIAGONAL_COST = 14;
 
     public static Pathfinding Instance { get; private set; }
+    private Dictionary<(int, int), bool> occupiedTiles = new Dictionary<(int, int), bool>();
 
     private Grid<PathNode> grid;
     private BinarySearchTree openList;
@@ -243,4 +244,41 @@ public class Pathfinding
             }
         }
     }
+}
+
+public void SetTileOccupied(int x, int y, bool occupied)
+{
+    /*
+    * Marks a tile as occupied or unoccupied by a creature
+    * Parameters:
+    *      x: grid x coordinate
+    *      y: grid y coordinate
+    *      occupied: true if creature is on tile, false if leaving
+    */
+    occupiedTiles[(x, y)] = occupied;
+}
+
+public bool IsTileOccupied(int x, int y)
+{
+    /*
+    * Checks if a tile is occupied by a creature
+    * Parameters:
+    *      x: grid x coordinate
+    *      y: grid y coordinate
+    * Returns: true if tile is occupied, false otherwise
+    */
+    return occupiedTiles.ContainsKey((x, y)) && occupiedTiles[(x, y)];
+}
+
+public bool IsTileOccupied(Vector3 worldPosition)
+{
+    /*
+    * Checks if a tile is occupied using world position
+    * Parameters:
+    *      worldPosition: world position to check
+    * Returns: true if tile is occupied, false otherwise
+    */
+    int x, y;
+    grid.GetXY(worldPosition, out x, out y);
+    return IsTileOccupied(x, y);
 }
