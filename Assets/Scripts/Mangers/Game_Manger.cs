@@ -18,8 +18,10 @@ public class Game_Manger : MonoBehaviour
     private List<PathNode> path;
     private UtilityFunctions UF;
     [SerializeField] private GameObject farmerPrefab;
+    [SerializeField] private GameObject mushlingPrefab;
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
+    private Creature creature;
     public int[,] tileValues { get; private set; }
     private List<int> amountOfRooms = new List<int> {11, 11};
     
@@ -154,8 +156,11 @@ public class Game_Manger : MonoBehaviour
                             Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
                             UF.getZPlane()
                         );
-                        adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
-                        return;
+                        if (i == 0)
+                        {
+                            creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                        }
+                        //creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
                     }
                 }
                 spriteChanger.ChangeSprite(selectedSpriteIndex);
