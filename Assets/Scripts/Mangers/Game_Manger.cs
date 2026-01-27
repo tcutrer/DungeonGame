@@ -187,12 +187,18 @@ public class Game_Manger : MonoBehaviour
         {
             time_to_explore += Time.deltaTime;
         }
+        // test stuff
+        if (time_to_explore >= setTimeToExplore)
+        {
+            areExplorersGone = true;
+        }
         if (time_to_explore >= setTimeToExplore && areExplorersGone == true)
         {
             isDay = false;
             time_to_explore = 0f;
             setNight();
             isnight = true;
+            
         }
 
     }
