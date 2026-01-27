@@ -26,6 +26,7 @@ public class Game_Manger : MonoBehaviour
     [SerializeField] private GameObject farmerPrefab;
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
+    public float adventurercount = 0f;
     public int[,] tileValues { get; private set; }
     private List<int> amountOfRooms = new List<int> {11, 11};
     
@@ -188,7 +189,7 @@ public class Game_Manger : MonoBehaviour
             time_to_explore += Time.deltaTime;
         }
         // test stuff
-        if (time_to_explore >= setTimeToExplore)
+        if (adventurercount <= 0f)
         {
             areExplorersGone = true;
         }
@@ -234,5 +235,9 @@ public class Game_Manger : MonoBehaviour
         isDay = true;
         UnselectBlock();
         PlayerUI.SetActive(false);
+    }
+    public void incrementadventurercount(float value)
+    {
+        adventurercount += value;
     }
 }
