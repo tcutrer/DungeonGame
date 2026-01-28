@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class Game_Manger : MonoBehaviour
 {
     // Private Variables
-    public bool select_mode = false;
+    public bool select_mode = true;
     private bool Is_play = false;
     private float Cycle_time = 0f;
     private bool isnight = true;
