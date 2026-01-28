@@ -6,11 +6,18 @@ using System.Collections.Generic;
 public class Game_Manger : MonoBehaviour
 {
     // Private Variables
+    public bool select_mode = true;
     private bool Is_play = false;
     private float Cycle_time = 0f;
+    private bool isnight = true;
+    private float time_to_explore = 0f;
+    private float setTimeToExplore = 30f; 
+    private bool areExplorersGone = true;
+    private bool isDay = false;
     private int Unit_nums = 0;
     private int Phase = 0;
     private Grid<GameObject> grid;
+    public GameObject PlayerUI;
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
     private Vector3 mouseWorld;
@@ -20,12 +27,13 @@ public class Game_Manger : MonoBehaviour
     [SerializeField] private GameObject farmerPrefab;
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
+    public float adventurercount = 0f;
     public int[,] tileValues { get; private set; }
     private List<int> amountOfRooms = new List<int> {11, 11};
     
     private int selectedSpriteIndex = 0;
 
-
+    
     public static Game_Manger instance { get; private set; }
 
     // Getters
@@ -143,6 +151,7 @@ public class Game_Manger : MonoBehaviour
         }
 
         GameObject obj = grid.GetGridObject(mouseWorld);
+        if (isDay == true || select_mode == true) return;
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
             if (spriteChanger != null) {
@@ -175,10 +184,65 @@ public class Game_Manger : MonoBehaviour
         }
         tileValues = UF.GetGridArrayTileValues(grid);
         pathfinding.SetWalkables(tileValues);
+
+        if (isDay == true && time_to_explore < setTimeToExplore)
+        {
+            time_to_explore += Time.deltaTime;
+        }
+        
+        if (adventurercount <= 0f)
+        {
+            areExplorersGone = true;
+        }
+        if (time_to_explore >= setTimeToExplore && areExplorersGone == true)
+        {
+            isDay = false;
+            time_to_explore = 0f;
+            setNight();
+            isnight = true;
+            
+        }
+
     }
 
     public void SelectSprite(int spriteIndex)
     {
         selectedSpriteIndex = spriteIndex;
+    }
+
+    public void UnselectBlock()
+    {
+        selectedSpriteIndex = 0; // Reset to default or no selection
+    }
+    public void ReadyForDay()
+    {
+        if (isnight == true && isDay == false)
+        {
+            setDay();
+            isDay = true;
+            isnight = false;
+        }
+    }
+    private void setNight()
+    {
+        isDay = false;
+        isnight = true;
+        UnselectBlock();
+        PlayerUI.SetActive(true);
+    }
+    private void setDay()
+    {
+        isnight = false;
+        isDay = true;
+        UnselectBlock();
+        PlayerUI.SetActive(false);
+    }
+    public void incrementadventurercount(float value)
+    {
+        adventurercount += value;
+    }
+    public void setSelectModeTrue(bool value)
+    {
+        select_mode = value;
     }
 }
