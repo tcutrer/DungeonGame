@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class Game_Manger : MonoBehaviour
 {
     // Private Variables
+    public bool select_mode = false;
     private bool Is_play = false;
     private float Cycle_time = 0f;
     private bool isnight = true;
@@ -150,7 +151,7 @@ public class Game_Manger : MonoBehaviour
         }
 
         GameObject obj = grid.GetGridObject(mouseWorld);
-        if (isDay == true) return;
+        if (isDay == true || select_mode == true) return;
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
             if (spriteChanger != null) {
@@ -239,5 +240,9 @@ public class Game_Manger : MonoBehaviour
     public void incrementadventurercount(float value)
     {
         adventurercount += value;
+    }
+    public void setSelectModeTrue(bool value)
+    {
+        select_mode = value;
     }
 }
