@@ -20,6 +20,8 @@ public class Adventurer : MonoBehaviour
     public const int searchRange = 15;
     public Vector2 CurrentTile;
     public Vector2 PreviousTile;
+    private int waitTime = 0;
+    private bool foundDestination = false;
 
     void Awake()
     {
@@ -81,6 +83,15 @@ public class Adventurer : MonoBehaviour
         {
             FollowPath();
         }
+        if (movementCoroutine != null && !IsCoroutineRunning(movementCoroutine) && !foundDestination)
+        {
+            FollowPath();
+        }
+    }
+
+    private bool IsCoroutineRunning(Coroutine coroutine)
+    {
+        return coroutine != null;
     }
 
     public void Death(int goldReward)
@@ -140,29 +151,58 @@ public class Adventurer : MonoBehaviour
 
          while (pathIndex < path.Count)
         {
-            // Convert grid coordinates back to world position properly
-            // Grid origin is at (-100, -70) with cell size of 10
+            // Check if the next tile is occupied
+            if (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()))
+            {
+                waitTime++;
+                if (waitTime > 300) // Wait up to 5 seconds (300 frames at 60fps)
+                {
+                    Debug.Log("Adventurer " + id + " is stuck and cannot move!");
+                    if (pathIndex > 0)
+                    {
+                        pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
+                    }
+
+                    yield break;
+                }
+                yield return null;
+                continue; // Skip the rest and check again next frame
+            }
+
+            waitTime = 0;
+            
+            // Clear previous tile as unoccupied
             if (pathIndex > 0)
             {
-                PreviousTile = new Vector2(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY());
+                pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
             }
-            CurrentTile = new Vector2(path[pathIndex].GetX(), path[pathIndex].GetY());
+
+            // Mark current tile as occupied
+            pathfinding.SetTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY(), true);
+            
             Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
             targetPosition.z = -1;
             currentDestination = targetPosition;
-
-            pathfindingManager.GetPathfinding().SetTileOccupied(oldX, oldY, false);
-            pathfindingManager.GetPathfinding().SetTileOccupied(newX, newY, true);
             
+            // Move to target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
-                 Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
-                newPosition.z = -1; // Preserve z = -1 after movement
+                Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+                newPosition.z = -1;
                 transform.position = newPosition;
                 yield return null;
             }
+        
+
             pathIndex++;
         }
+
+        // Clear the last tile when path is complete
+        if (path.Count > 0)
+        {
+            pathfinding.SetTileOccupied(path[path.Count - 1].GetX(), path[path.Count - 1].GetY(), false);
+        }
+        foundDestination = true;
     }
 
     private Vector2 FindDesiredPosition()
