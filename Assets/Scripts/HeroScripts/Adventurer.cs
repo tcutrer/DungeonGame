@@ -115,6 +115,7 @@ public class Adventurer : MonoBehaviour
             Debug.LogError("Pathfinding is null! PathfindingManager may not be initialized.");
             return;
         }
+        foundDestination = false;
         Vector2 desiredPosition = FindDesiredPosition();
         Move(desiredPosition);
     }
@@ -154,19 +155,22 @@ public class Adventurer : MonoBehaviour
             // Check if the next tile is occupied
             if (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()))
             {
-                waitTime++;
-                if (waitTime > 300) // Wait up to 5 seconds (300 frames at 60fps)
-                {
-                    Debug.Log("Adventurer " + id + " is stuck and cannot move!");
-                    if (pathIndex > 0)
+                    while (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()))
                     {
-                        pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
-                    }
+                    waitTime++;
+                    if (waitTime > 300) // Wait up to 5 seconds (300 frames at 60fps)
+                    {
+                        Debug.Log("Adventurer " + id + " is stuck and cannot move!");
+                        if (pathIndex > 0)
+                        {
+                            pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
+                        }
 
-                    yield break;
+                        yield break;
+                    }
+                    yield return null;
+                    continue; // Skip the rest and check again next frame
                 }
-                yield return null;
-                continue; // Skip the rest and check again next frame
             }
 
             waitTime = 0;
@@ -198,10 +202,6 @@ public class Adventurer : MonoBehaviour
         }
 
         // Clear the last tile when path is complete
-        if (path.Count > 0)
-        {
-            pathfinding.SetTileOccupied(path[path.Count - 1].GetX(), path[path.Count - 1].GetY(), false);
-        }
         foundDestination = true;
     }
 
