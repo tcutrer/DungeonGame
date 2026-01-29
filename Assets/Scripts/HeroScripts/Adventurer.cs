@@ -18,8 +18,6 @@ public class Adventurer : MonoBehaviour
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
     public const int searchRange = 15;
-    public Vector2 CurrentTile;
-    public Vector2 PreviousTile;
     private int waitTime = 0;
     private bool foundDestination = false;
 

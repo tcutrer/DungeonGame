@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Mushling
   m_EditorClassIdentifier: 
   health: 5
-  speed: 0
+  speed: 1
   attackPower: 2
