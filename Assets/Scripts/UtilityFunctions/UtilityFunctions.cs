@@ -13,6 +13,7 @@ public class UtilityFunctions {
     private const float DISPLAY_SPRITE_Y = 0f;
     private const float Z_PLANE = 0f;
     private const float WHY_OFFSET = CELL_SIZE / 2f;
+    public readonly List<int> amountOfRooms = new List<int> {5, 5};
     private static Camera mainCamera = Camera.main;
     private static Vector3 mouseWorldPosition;
 
