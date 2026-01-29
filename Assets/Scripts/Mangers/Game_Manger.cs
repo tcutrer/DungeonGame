@@ -150,7 +150,8 @@ public class Game_Manger : MonoBehaviour
         }
 
         GameObject obj = grid.GetGridObject(mouseWorld);
-        if (isDay == true || select_mode == true) return;
+        if (isDay == true) return;
+        if (select_mode == true) return;
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
             if (spriteChanger != null) {
