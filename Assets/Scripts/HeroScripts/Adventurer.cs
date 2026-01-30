@@ -8,6 +8,7 @@ public class Adventurer : MonoBehaviour
     public int health;
     public float speed;
     public int attackPower;
+    public string adventurerName;
     public Vector2 position;
     private Pathfinding pathfinding;
     private UtilityFunctions UF;
@@ -20,6 +21,9 @@ public class Adventurer : MonoBehaviour
     public const int searchRange = 15;
     private int waitTime = 0;
     private bool foundDestination = false;
+    private List<string> possibleNames = new List<string> {"Arin", "Bryn", "Cai", "Dara", "Eryn", "Finn", "Gwen", "Hale", "Ira", "Joss"};
+
+
 
     void Awake()
     {
@@ -44,12 +48,14 @@ public class Adventurer : MonoBehaviour
             health = 100;
             speed = 5f * 10;
             attackPower = 10;
+            adventurerName = possibleNames[UnityEngine.Random.Range(0, possibleNames.Count)];
         }
         else
         {
             health = data.health;
             speed = data.speed * 10;
             attackPower = data.attackPower;
+            adventurerName = data.adventurerName;
         }
         position = new Vector3(-35, -35, -1);
     }
@@ -84,6 +90,10 @@ public class Adventurer : MonoBehaviour
         if (movementCoroutine != null && !IsCoroutineRunning(movementCoroutine) && !foundDestination)
         {
             FollowPath();
+        }
+        if (health <= 0)
+        {
+            AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
         }
     }
 

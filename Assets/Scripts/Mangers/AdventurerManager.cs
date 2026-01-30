@@ -7,6 +7,52 @@ public class AdventurerManager : MonoBehaviour
 {
     // All the Adventuruer prefabs
     [SerializeField] private GameObject farmerPrefab;
+    [SerializeField] private GameObject warriorPrefab;
+    [SerializeField] private GameObject magePrefab;
 
+    private Pathfinding pathfinding;
+    private Grid<GameObject> grid;
+    private List<PathNode> path;
+    private UtilityFunctions UF;
+    private Game_Manger<GameObject> gameManager;
+
+    public int adventurerCountStillInMaze = 0;
+    public int adventurerCountThisWave = 0;
+
+    public static AdventurerManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        UF = new UtilityFunctions();
+        pathfinding = PathfindingManager.Instance.GetPathfinding();
+        gameManager = Game_Manger.instance;
+    }
+
+    private void SpawnAdventurer(string adventurerType, Vector3 spawnPosition)
+    {
+        // Fill in later
+    }
+
+    public void incrementadventurercount_inMazeStillUP()
+    {
+        gameManager.adventurercount += 1f;
+    }
+
+    public void decrementadventurercount_inMazeStillUP()
+    {
+        gameManager.adventurercount -= 1f;
+    }
 
 }
