@@ -7,4 +7,6 @@ public class AdventurerData : ScriptableObject
     public float speed;
     public int attackPower;
     public string adventurerName;
+    
+
 }

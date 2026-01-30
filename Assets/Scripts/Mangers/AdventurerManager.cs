@@ -14,7 +14,7 @@ public class AdventurerManager : MonoBehaviour
     private Grid<GameObject> grid;
     private List<PathNode> path;
     private UtilityFunctions UF;
-    private Game_Manger<GameObject> gameManager;
+    private Game_Manger gameManager;
 
     public int adventurerCountStillInMaze = 0;
     public int adventurerCountThisWave = 0;
