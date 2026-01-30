@@ -241,6 +241,7 @@ public class Game_Manger : MonoBehaviour
         isDay = true;
         UnselectBlock();
         PlayerUI.SetActive(false);
+        
     }
     public void incrementadventurercount(float value)
     {
