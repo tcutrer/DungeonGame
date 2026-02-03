@@ -261,8 +261,8 @@ public class Game_Manger : MonoBehaviour
     {
         for (int i = 0; i < adventurerCountThisWave; i++)
         {
-            Vector3 spawnPosition = new Vector3(UF.getGridOffset().x + UF.getWhyOffset() + (UF.getCellSize() * (UF.getGridWidth() / 2)), UF.getGridOffset().y + UF.getWhyOffset() - (UF.getCellSize()), UF.getZPlane());
-
+            Vector3 spawnPosition = new Vector3(UF.getGridWidth() / 2, 0, 0);
+            
             AdventurerManager.Instance.SpawnAdventurer(spawnPosition, 0);
         }
     }

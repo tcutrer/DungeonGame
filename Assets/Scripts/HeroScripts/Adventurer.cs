@@ -107,6 +107,7 @@ public class Adventurer : MonoBehaviour
                 Vector2 spawnPosition = new Vector2(-35, -35);
                 Move(spawnPosition);
             }
+            
         }
     }
 
