@@ -39,6 +39,12 @@ public class Adventurer : MonoBehaviour
         UF = new UtilityFunctions();
         SetupAdventurer(adventurerData);
         pathfinding = PathfindingManager.Instance.GetPathfinding();
+        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+
+        if (pathfinding != null)
+        {
+            pathfinding.SetTileOccupied((int)curGridPos.x, (int)curGridPos.y, true);
+        }
     }
 
     void SetupAdventurer(AdventurerData data)
@@ -140,11 +146,16 @@ public class Adventurer : MonoBehaviour
         }
         foundDestination = false;
         Vector2 desiredPosition = FindDesiredPosition();
-        Move(desiredPosition);
+        if (desiredPosition != null)
+        {
+            Move(desiredPosition);
+        }
     }
 
     private void Move(Vector2 newPosition)
     {
+        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+        pathfinding.SetTileOccupied((int)curGridPos.x, (int)curGridPos.y, false);
         Grid<PathNode> grid = pathfinding.GetGrid();
         if (grid == null)
         {
@@ -184,11 +195,7 @@ public class Adventurer : MonoBehaviour
                     if (waitTime > 300) // Wait up to 5 seconds (300 frames at 60fps)
                     {
                         Debug.Log("Adventurer " + id + " is stuck and cannot move!");
-                        if (pathIndex > 0)
-                        {
-                            pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
-                        }
-
+                        FollowPath(); // Recalculate path
                         yield break;
                     }
                     yield return null;
@@ -249,7 +256,7 @@ public class Adventurer : MonoBehaviour
                 if (checkX >= 0 && checkX < tileValues.GetLength(0) && 
                     checkY >= 0 && checkY < tileValues.GetLength(1))
                 {
-                    if (tileValues[checkX, checkY] == 2) // Assuming 2 represents a target tile
+                    if (tileValues[checkX, checkY] == 2 && !pathfinding.IsTileOccupied(checkX, checkY) && !(curX == checkX && curY == checkY)) // Assuming 2 represents a target tile
                     {
                         possibleDestinations.Add(new Vector2(checkX, checkY));
                     }
@@ -261,6 +268,8 @@ public class Adventurer : MonoBehaviour
         if (possibleDestinations.Count != 0)
         {
             finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
+            finalDestination += new Vector2(UnityEngine.Random.Range(-1, 1), UnityEngine.Random.Range(-1, 1));
+            foundDestination = false;
         }
         else
         {

@@ -101,8 +101,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   availableSprites:
+  - {fileID: -8275502208090371910, guid: 03c8cb60d29bda240856638e36f97e51, type: 3}
   - {fileID: 2891247693787962197, guid: 3c07d3f9d962c514b96b9bd628bee4cb, type: 3}
-  - {fileID: 168918004, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: 281774144, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: 362857182, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: -409043147, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
