@@ -95,6 +95,10 @@ public class Adventurer : MonoBehaviour
         {
             Death(10); // Example gold reward
         }
+        if (Game_Manger.instance.Get_IsTimeToExplore())
+        {
+            FollowPath();
+        }
     }
 
     private bool IsCoroutineRunning(Coroutine coroutine)

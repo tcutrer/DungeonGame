@@ -266,4 +266,12 @@ public class Game_Manger : MonoBehaviour
             AdventurerManager.Instance.SpawnAdventurer(spawnPosition, 0);
         }
     }
+    public void Get_IsTimeToExplore()
+    {
+        if (time_to_explore >= setTimeToExplore)
+        {
+            return true;
+        }
+        return false;
+    }
 }
