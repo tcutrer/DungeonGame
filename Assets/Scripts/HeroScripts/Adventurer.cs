@@ -104,10 +104,10 @@ public class Adventurer : MonoBehaviour
         {
             if (courage < 10) {
                 // Return to spawn point
-                Vector2 spawnPosition = new Vector2(-35, -35);
+                Vector2 spawnPosition = new Vector2(1, 1);
                 Move(spawnPosition);
             }
-            
+
         }
     }
 

@@ -261,9 +261,11 @@ public class Game_Manger : MonoBehaviour
     {
         for (int i = 0; i < adventurerCountThisWave; i++)
         {
-            Vector3 spawnPosition = new Vector3(UF.getGridWidth() / 2, 0, 0);
             
-            AdventurerManager.Instance.SpawnAdventurer(spawnPosition, 0);
+            Vector3 spawnPosition = new Vector3(-35, -35, -1);
+            
+            
+            StartCoroutine(SpawnAdventurerCoroutine(spawnPosition, Random.Range(0, 3), i * 1.0f));
         }
     }
     public bool Get_IsTimeToExplore()
@@ -273,5 +275,11 @@ public class Game_Manger : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+IEnumerator SpawnAdventurerCoroutine(Vector3 spawnPosition, int adventurerType, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        AdventurerManager.Instance.SpawnAdventurer(spawnPosition, adventurerType);
     }
 }
