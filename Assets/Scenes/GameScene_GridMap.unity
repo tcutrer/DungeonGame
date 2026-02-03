@@ -2654,8 +2654,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   farmerPrefab: {fileID: 1155799253241514704, guid: 40eda16015a30ba48836344a54fcfc05, type: 3}
-  warriorPrefab: {fileID: 0}
-  magePrefab: {fileID: 0}
+  warriorPrefab: {fileID: 1155799253241514704, guid: 40eda16015a30ba48836344a54fcfc05, type: 3}
+  magePrefab: {fileID: 1155799253241514704, guid: 40eda16015a30ba48836344a54fcfc05, type: 3}
   adventurerCountStillInMaze: 0
   adventurerCountThisWave: 0
 --- !u!4 &1315309952
