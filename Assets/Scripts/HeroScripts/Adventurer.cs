@@ -21,6 +21,7 @@ public class Adventurer : MonoBehaviour
     public const int searchRange = 15;
     private int waitTime = 0;
     private bool foundDestination = false;
+    private int courage = 5;
     private List<string> possibleNames = new List<string> {"Arin", "Bryn", "Cai", "Dara", "Eryn", "Finn", "Gwen", "Hale", "Ira", "Joss"};
 
 
@@ -98,6 +99,14 @@ public class Adventurer : MonoBehaviour
         if (Game_Manger.instance.Get_IsTimeToExplore())
         {
             FollowPath();
+        }
+        else if (Game_Manger.instance.Get_IsTimeToExplore() == false)
+        {
+            if (courage < 10) {
+                // Return to spawn point
+                Vector2 spawnPosition = new Vector2(-35, -35);
+                Move(spawnPosition);
+            }
         }
     }
 
