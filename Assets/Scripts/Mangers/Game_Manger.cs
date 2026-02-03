@@ -7,6 +7,8 @@ public class Game_Manger : MonoBehaviour
 {
     // Private Variables
     public bool select_mode = true;
+    private int wavecount = 0;
+    private List<int> adventurercountPerWave = new List<int> {3, 5, 7, 10, 12, 15};
     private bool Is_play = false;
     private float Cycle_time = 0f;
     private bool isnight = true;
@@ -176,6 +178,7 @@ public class Game_Manger : MonoBehaviour
             }
         }
     }
+    
 
     private void Update()
     {
@@ -199,6 +202,7 @@ public class Game_Manger : MonoBehaviour
         {
             areExplorersGone = true;
         }
+
         if (time_to_explore >= setTimeToExplore && areExplorersGone == true)
         {
             isDay = false;
@@ -241,6 +245,8 @@ public class Game_Manger : MonoBehaviour
         isDay = true;
         UnselectBlock();
         PlayerUI.SetActive(false);
+        SpawnAdventurersForWave(adventurercountPerWave[wavecount]);
+        areExplorersGone = false;
         
     }
     public void incrementadventurercount(float value)
@@ -250,5 +256,14 @@ public class Game_Manger : MonoBehaviour
     public void setSelectModeTrue(bool value)
     {
         select_mode = value;
+    }
+    private void SpawnAdventurersForWave(int adventurerCountThisWave)
+    {
+        for (int i = 0; i < adventurerCountThisWave; i++)
+        {
+            Vector3 spawnPosition = new Vector3(UF.getGridOffset().x + UF.getWhyOffset() + (UF.getCellSize() * (UF.getGridWidth() / 2)), UF.getGridOffset().y + UF.getWhyOffset() - (UF.getCellSize()), UF.getZPlane());
+
+            AdventurerManager.Instance.SpawnAdventurer(spawnPosition, 0);
+        }
     }
 }

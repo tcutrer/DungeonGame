@@ -55,4 +55,24 @@ public class AdventurerManager : MonoBehaviour
         gameManager.adventurercount -= 1f;
     }
 
+    public void SpawnAdventurer(Vector3 spawnPosition, int adventurerType)
+    {
+        
+        switch (adventurerType)
+        {
+            case 0:
+                Instantiate(farmerPrefab, spawnPosition, Quaternion.identity);
+                break;
+            case 1:
+                Instantiate(warriorPrefab, spawnPosition, Quaternion.identity);
+                break;
+            case 2:
+                Instantiate(magePrefab, spawnPosition, Quaternion.identity);
+                break;
+        }
+        adventurerCountThisWave += 1;
+        adventurerCountStillInMaze += 1;
+
+    }
+
 }

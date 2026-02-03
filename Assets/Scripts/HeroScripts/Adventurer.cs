@@ -93,7 +93,7 @@ public class Adventurer : MonoBehaviour
         }
         if (health <= 0)
         {
-            AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
+            Death(10); // Example gold reward
         }
     }
 
@@ -109,6 +109,7 @@ public class Adventurer : MonoBehaviour
         {
             currencyManager.AddGold(goldReward);
         }
+        AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
         Destroy(gameObject);
     }
 
