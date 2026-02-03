@@ -243,7 +243,7 @@ public class Adventurer : MonoBehaviour
         if (possibleDestinations.Count != 0)
         {
             finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
-            
+            finalDestination += new Vector2(UnityEngine.Random.Range(-1, 1), UnityEngine.Random.Range(-1, 1));
             foundDestination = false;
         }
         else
