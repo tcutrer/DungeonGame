@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using System.Collections;
 using System.Collections.Generic;
 
 public class Game_Manger : MonoBehaviour
@@ -277,7 +278,7 @@ public class Game_Manger : MonoBehaviour
         return false;
     }
 
-IEnumerator SpawnAdventurerCoroutine(Vector3 spawnPosition, int adventurerType, float delay)
+    IEnumerator SpawnAdventurerCoroutine(Vector3 spawnPosition, int adventurerType, float delay)
     {
         yield return new WaitForSeconds(delay);
         AdventurerManager.Instance.SpawnAdventurer(spawnPosition, adventurerType);
