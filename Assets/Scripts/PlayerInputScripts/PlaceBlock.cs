@@ -37,7 +37,7 @@ public class PlaceBlock : MonoBehaviour
         float mouseY = Mouse.current.position.ReadValue().y;
         Debug.Log("Mouse Y Position: " + mouseY);
 
-        if (Mouse.current.position.ReadValue().y >= 630)
+        if (Mouse.current.position.ReadValue().y >= 530)
         {
             Debug.Log("Mouse Y Position: " + mouseY + " - Ignoring block placement input.");
             return;

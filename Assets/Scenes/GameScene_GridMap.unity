@@ -250,7 +250,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f75db585779d543b919f4eecb1484a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingGold: 100
+  startingGold: 500
 --- !u!1 &80613892
 GameObject:
   m_ObjectHideFlags: 0
