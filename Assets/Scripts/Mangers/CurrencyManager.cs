@@ -4,8 +4,7 @@ public class CurrencyManager : MonoBehaviour
 {
     public static CurrencyManager Instance { get; private set; }
     public int Gold { get; private set; }
-    [SerializeField]
-    private readonly int startingGold = 100;
+    [SerializeField] private int startingGold = 100;
 
     private void Awake()
     {

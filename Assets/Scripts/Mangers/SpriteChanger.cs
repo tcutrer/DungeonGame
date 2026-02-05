@@ -84,7 +84,6 @@ public class SpriteChanger : MonoBehaviour
 
     public int GetCost(int index)
     {
-        // Example cost calculation: cost increases by 10 for each sprite index
-        return (index + 1) * 10;
+        return costs[index];
     }
 }

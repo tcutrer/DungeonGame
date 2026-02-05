@@ -165,7 +165,7 @@ public class Game_Manger : MonoBehaviour
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
             if (spriteChanger != null) {
-                if (CurrencyManager.Instance.Gold < spriteChanger.GetCost(selectedSpriteIndex))
+                if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false)
                 {
                     Debug.Log("Not enough currency to place block!");
                     return;
