@@ -153,6 +153,11 @@ public class Game_Manger : MonoBehaviour
             Debug.LogError("Grid is null in PlaceBlock!");
             return;
         }
+        if (CurrencyManager.Instance == null)
+        {
+            Debug.LogError("PlaceBlock: CurrencyManager instance is null!");
+            return;
+        }
 
         GameObject obj = grid.GetGridObject(mouseWorld);
         if (isDay == true) return;
@@ -160,6 +165,11 @@ public class Game_Manger : MonoBehaviour
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
             if (spriteChanger != null) {
+                if (CurrencyManager.Instance.Gold < spriteChanger.GetCost(selectedSpriteIndex))
+                {
+                    Debug.Log("Not enough currency to place block!");
+                    return;
+                }
                 // Check if selected sprite is a creature costume
                 for (int i = 0; i < creatureCostumes.Count; i++) {
                     if (selectedSpriteIndex == creatureCostumes[i]) {

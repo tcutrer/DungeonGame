@@ -8,6 +8,7 @@ public class SpriteChanger : MonoBehaviour
     [SerializeField] private Sprite[] availableSprites;  // Array to hold your sprites
     private SpriteRenderer spriteRenderer;
     private int currentSpriteIndex = 0;
+    private List<int> costs = new List<int> {0, 5, 0, 15, 20, 25, 30, 35, 40, 45};
 
     private void Awake()
     {
@@ -79,5 +80,11 @@ public class SpriteChanger : MonoBehaviour
     public SpriteRenderer getSpriteRenderer()
     {
         return spriteRenderer;
+    }
+
+    public int GetCost(int index)
+    {
+        // Example cost calculation: cost increases by 10 for each sprite index
+        return (index + 1) * 10;
     }
 }
