@@ -40,10 +40,7 @@ public class AdventurerManager : MonoBehaviour
         gameManager = Game_Manger.instance;
     }
 
-    private void SpawnAdventurer(string adventurerType, Vector3 spawnPosition)
-    {
-        // Fill in later
-    }
+
 
     public void incrementadventurercount_inMazeStillUP()
     {

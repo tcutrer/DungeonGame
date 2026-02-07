@@ -112,6 +112,10 @@ public class Adventurer : MonoBehaviour
                 // Return to spawn point
                 Vector2 spawnPosition = new Vector2(1, 1);
                 Move(spawnPosition);
+                if (foundDestination == true)
+                {
+                    Destroy(gameObject);
+                }
             }
 
         }
