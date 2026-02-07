@@ -33,6 +33,15 @@ public class PlaceBlock : MonoBehaviour
             Debug.LogError("PlaceBlock: Game_Manger instance is null!");
             return;
         }
+
+        float mouseY = Mouse.current.position.ReadValue().y;
+        Debug.Log("Mouse Y Position: " + mouseY);
+
+        if (Mouse.current.position.ReadValue().y >= 530)
+        {
+            Debug.Log("Mouse Y Position: " + mouseY + " - Ignoring block placement input.");
+            return;
+        }
         if (PauseScript.isPaused) return;
         Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorld.z = 0f;

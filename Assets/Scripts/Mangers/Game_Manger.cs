@@ -34,6 +34,7 @@ public class Game_Manger : MonoBehaviour
     private Creature creature;
     public float adventurercount = 0f;
     public int[,] tileValues { get; private set; }
+    bool[,] roomAvailable;
     
     private int selectedSpriteIndex = 0;
 
@@ -93,8 +94,16 @@ public class Game_Manger : MonoBehaviour
 
     private void Start()
     {
-        // Initialize utilities and sprites
         UF = new UtilityFunctions();
+        roomAvailable = new bool[UF.amountOfRooms[0], UF.amountOfRooms[1]];
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 2; y++)
+            {
+                roomAvailable[x, y] = true; // A 2x2 square is available for block placement
+            }
+        }
+        // Initialize utilities and sprites
         testSprite = new Test_Sprite();
         pathfinding = PathfindingManager.Instance.GetPathfinding();
         
@@ -153,6 +162,18 @@ public class Game_Manger : MonoBehaviour
             Debug.LogError("Grid is null in PlaceBlock!");
             return;
         }
+        if (CurrencyManager.Instance == null)
+        {
+            Debug.LogError("PlaceBlock: CurrencyManager instance is null!");
+            return;
+        }
+
+        if (roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
+        {
+            Debug.LogWarning("PlaceBlock: Attempted to place block outside of availible bounds!");
+            return;
+        }
+        Debug.Log((UF.WorldToGridCoords(position).x / UF.getGridWidth()) + ", " + (UF.WorldToGridCoords(position).y / UF.getGridHeight()));
 
         GameObject obj = grid.GetGridObject(mouseWorld);
         if (isDay == true) return;
@@ -160,6 +181,11 @@ public class Game_Manger : MonoBehaviour
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
             if (spriteChanger != null) {
+                if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false)
+                {
+                    Debug.Log("Not enough currency to place block!");
+                    return;
+                }
                 // Check if selected sprite is a creature costume
                 for (int i = 0; i < creatureCostumes.Count; i++) {
                     if (selectedSpriteIndex == creatureCostumes[i]) {
