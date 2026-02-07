@@ -168,7 +168,7 @@ public class Game_Manger : MonoBehaviour
             return;
         }
 
-        if (roomAvailable[UF.WorldToGridCoords(position).x / UF.getGridWidth(), UF.WorldToGridCoords(position).y / UF.getGridHeight()])
+        if (roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
         {
             Debug.LogWarning("PlaceBlock: Attempted to place block outside of availible bounds!");
             return;
