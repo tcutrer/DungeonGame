@@ -90,10 +90,6 @@ public class Adventurer : MonoBehaviour
         {
             pathfinding = PathfindingManager.Instance.GetPathfinding();
         }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            FollowPath();
-        }
         if (movementCoroutine != null && !IsCoroutineRunning(movementCoroutine) && !foundDestination)
         {
             FollowPath();
@@ -102,18 +98,21 @@ public class Adventurer : MonoBehaviour
         {
             Death(10); // Example gold reward
         }
-        if (Game_Manger.instance.Get_IsTimeToExplore())
+        if (Game_Manger.instance.Get_IsTimeToExplore() == true)
         {
             FollowPath();
         }
         else if (Game_Manger.instance.Get_IsTimeToExplore() == false)
         {
+            Debug.Log("Adventurer " + id + " is checking courage level: " + courage);
             if (courage < 10) {
                 // Return to spawn point
                 Vector2 spawnPosition = new Vector2(1, 1);
                 Move(spawnPosition);
+                Debug.Log("Adventurer " + id + " is retreating to spawn point!");
                 if (foundDestination == true)
                 {
+                    Debug.Log("Adventurer " + id + " has retreated to spawn point!");
                     Destroy(gameObject);
                 }
             }

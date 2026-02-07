@@ -69,6 +69,7 @@ public class AdventurerManager : MonoBehaviour
         }
         adventurerCountThisWave += 1;
         adventurerCountStillInMaze += 1;
+        Debug.Log("Spawned adventurer of type " + adventurerType + " at position " + spawnPosition);
 
     }
 

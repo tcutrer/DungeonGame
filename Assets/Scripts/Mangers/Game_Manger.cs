@@ -15,6 +15,7 @@ public class Game_Manger : MonoBehaviour
     private bool isnight = true;
     private float time_to_explore = 0f;
     private float setTimeToExplore = 30f; 
+    public bool timeToExplore = false;
     private bool areExplorersGone = true;
     private bool isDay = false;
     private int Unit_nums = 0;
@@ -223,6 +224,11 @@ public class Game_Manger : MonoBehaviour
         if (isDay == true && time_to_explore < setTimeToExplore)
         {
             time_to_explore += Time.deltaTime;
+            if (time_to_explore > setTimeToExplore)
+            {
+                timeToExplore = true;
+                Debug.Log("Adventurers are now leaving the dungeon and despawning!");
+            }
         }
         
         if (adventurercount <= 0f)
@@ -257,6 +263,7 @@ public class Game_Manger : MonoBehaviour
             setDay();
             isDay = true;
             isnight = false;
+            time_to_explore = 0f;
         }
     }
     private void setNight()
@@ -297,11 +304,7 @@ public class Game_Manger : MonoBehaviour
     }
     public bool Get_IsTimeToExplore()
     {
-        if (time_to_explore >= setTimeToExplore)
-        {
-            return true;
-        }
-        return false;
+        return timeToExplore;
     }
 
     IEnumerator SpawnAdventurerCoroutine(Vector3 spawnPosition, int adventurerType, float delay)
