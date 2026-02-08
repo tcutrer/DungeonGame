@@ -157,20 +157,14 @@ public class Game_Manger : MonoBehaviour
     
     public void PlaceBlock(Vector3 position)
     {
-        if (grid == null)
-        {
-            Debug.LogError("Grid is null in PlaceBlock!");
-            return;
-        }
-        if (CurrencyManager.Instance == null)
-        {
-            Debug.LogError("PlaceBlock: CurrencyManager instance is null!");
-            return;
-        }
+        if (grid == null) return;
 
-        if (roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
+        if (CurrencyManager.Instance == null) return;
+
+        if (!roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
         {
-            Debug.LogWarning("PlaceBlock: Attempted to place block outside of availible bounds!");
+            Debug.Log("PlaceBlock: Attempted to place block outside of availible bounds!");
+            UITextManager.Instance.ShowRoomPurchaseText(50);
             return;
         }
         Debug.Log((UF.WorldToGridCoords(position).x / UF.getGridWidth()) + ", " + (UF.WorldToGridCoords(position).y / UF.getGridHeight()));
@@ -178,34 +172,31 @@ public class Game_Manger : MonoBehaviour
         GameObject obj = grid.GetGridObject(mouseWorld);
         if (isDay == true) return;
         if (select_mode == true) return;
-        if (obj != null) {
-            SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
-            if (spriteChanger != null) {
-                if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false)
-                {
-                    Debug.Log("Not enough currency to place block!");
-                    return;
-                }
-                // Check if selected sprite is a creature costume
-                for (int i = 0; i < creatureCostumes.Count; i++) {
-                    if (selectedSpriteIndex == creatureCostumes[i]) {
-                        Vector3 snappedPosition = new Vector3(
-                            Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
-                            Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
-                            UF.getZPlane()
-                        );
-                        if (i == 0)
-                        {
-                            creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
-                        }
-                        //creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
-                    }
-                }
-                spriteChanger.ChangeSprite(selectedSpriteIndex);
+        if (obj == null) return;
+
+        SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
+        if (spriteChanger == null) return;
+
+        if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false) return;
+        // Check if selected sprite is a creature costume
+        for (int i = 0; i < creatureCostumes.Count; i++) {
+            if (selectedSpriteIndex != creatureCostumes[i]) continue;
+            Vector3 snappedPosition = new Vector3(
+                Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                UF.getZPlane()
+            );
+            switch(i) {
+                case 1:
+                    creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    break;
+                default:
+                    creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    break;
             }
         }
+        spriteChanger.ChangeSprite(selectedSpriteIndex);
     }
-    
 
     private void Update()
     {
