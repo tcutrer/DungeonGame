@@ -9,6 +9,7 @@ public class UITextManager : MonoBehaviour
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI roomPurchaseText;
     public GameObject roomPurchasePanel;
+    private Vector3 roomPurchasePosition;
 
     private void UpdateGoldText()
     {
@@ -43,11 +44,12 @@ public class UITextManager : MonoBehaviour
         UpdateGoldText();
     }
 
-    public void ShowRoomPurchaseText(int roomCost)
+    public void ShowRoomPurchaseText(int roomCost, Vector3 position)
     {
         if (roomPurchaseText != null)
         {
             roomPurchaseText.text = "Do you want to buy this room for:" + System.Environment.NewLine + System.Environment.NewLine + roomCost + System.Environment.NewLine + System.Environment.NewLine + "?";
+            roomPurchasePosition = position;
             roomPurchasePanel.SetActive(true);
         }
     }
@@ -66,6 +68,7 @@ public class UITextManager : MonoBehaviour
             {
                 // Logic to unlock the room goes here
                 Debug.Log("Room purchased successfully!");
+                Game_Manger.instance.unlockRoom(roomPurchasePosition); // Assuming you have an UnlockRoom method in your Game_Manger
             }
             else
             {

@@ -34,7 +34,7 @@ public class Game_Manger : MonoBehaviour
     private Creature creature;
     public float adventurercount = 0f;
     public int[,] tileValues { get; private set; }
-    bool[,] roomAvailable;
+    public bool[,] roomAvailable;
     
     private int selectedSpriteIndex = 0;
 
@@ -92,7 +92,7 @@ public class Game_Manger : MonoBehaviour
         }
     }
 
-     private void Start()
+    private void Start()
     {
         UF = new UtilityFunctions();
         testSprite = new Test_Sprite();
@@ -171,7 +171,7 @@ public class Game_Manger : MonoBehaviour
         if (!roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
         {
             Debug.Log("PlaceBlock: Attempted to place block outside of availible bounds!");
-            UITextManager.Instance.ShowRoomPurchaseText(50);
+            UITextManager.Instance.ShowRoomPurchaseText(50, position);
             return;
         }
         Debug.Log((UF.WorldToGridCoords(position).x / UF.getGridWidth()) + ", " + (UF.WorldToGridCoords(position).y / UF.getGridHeight()));
@@ -203,6 +203,19 @@ public class Game_Manger : MonoBehaviour
             }
         }
         spriteChanger.ChangeSprite(selectedSpriteIndex);
+    }
+
+    public void unlockRoom(Vector3 position)
+    {
+        int roomX = (int)(UF.WorldToGridCoords(position).x / UF.getGridWidth());
+        int roomY = (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight());
+        if (roomX < 0 || roomX >= UF.amountOfRooms[0] || roomY < 0 || roomY >= UF.amountOfRooms[1])
+        {
+            Debug.LogError("UnlockRoom: Attempted to unlock room outside of bounds!");
+            return;
+        }
+        roomAvailable[roomX, roomY] = true;
+        Debug.Log("Room at " + roomX + ", " + roomY + " unlocked!");
     }
 
     private void Update()
@@ -250,6 +263,52 @@ public class Game_Manger : MonoBehaviour
     }
     public void ReadyForDay()
     {
+        List<Vector2> tilesToCheckPathfind = new List<Vector2> {};
+        Vector2 mainDoorCords = new Vector2(-1, -1);
+        bool goodGrid = true;
+        for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
+        {
+            for (int y = 0; y < UF.getGridHeight() * UF.amountOfRooms[1]; y++)
+            {
+                int tileValue = grid.GetGridObject(x, y).GetComponent<SpriteChanger>().GetCurrentSpriteIndex();
+                switch (tileValue)
+                {
+                    case 2:
+                        if (mainDoorCords.x == -1 && mainDoorCords.y == -1)
+                        {
+                            mainDoorCords = new Vector2(x, y);
+                        }
+                        else
+                        {
+                            goodGrid = false;
+                        }
+                        break;
+                    case 4:
+                        tilesToCheckPathfind.Add(new Vector2(x, y));
+                        break;
+                    default:
+                        if ((x == 0 || x == (UF.getGridWidth() * UF.amountOfRooms[0] - 1) || y == 0 || y == (UF.getGridHeight() * UF.amountOfRooms[1] - 1)) && tileValue != 1)
+                        {
+                            Debug.Log("ReadyForDay: Outer wall tile at " + x + ", " + y + " is not set as a wall! Please fix your grid!");
+                            goodGrid = false;
+                        }
+                        break;
+                }
+            }
+        }
+        if (goodGrid == false || mainDoorCords.x == -1 || mainDoorCords.y == -1)
+        {
+            return;
+        }
+        for (int i = 0; i < tilesToCheckPathfind.Count; i++)
+        {
+            path = pathfinding.FindPath((int)mainDoorCords.x, (int)mainDoorCords.y, (int)tilesToCheckPathfind[i].x, (int)tilesToCheckPathfind[i].y);
+            if (path == null)
+            {
+                Debug.Log("ReadyForDay: No path found from main door to tile at " + tilesToCheckPathfind[i] + "! Please fix your grid!");
+                return;
+            }
+        }
         if (isnight == true && isDay == false)
         {
             setDay();
