@@ -14,7 +14,7 @@ public class Game_Manger : MonoBehaviour
     private float Cycle_time = 0f;
     private bool isnight = true;
     private float time_to_explore = 0f;
-    private float setTimeToExplore = 30f; 
+    private float setTimeToExplore = 5f; 
     public bool areExplorersGone = true;
     private bool isDay = false;
     private int Unit_nums = 0;
@@ -237,10 +237,6 @@ public class Game_Manger : MonoBehaviour
             time_to_explore += Time.deltaTime;
         }
         
-        if (adventurercount <= 0f)
-        {
-            areExplorersGone = true;
-        }
 
         if (time_to_explore >= setTimeToExplore && areExplorersGone == true)
         {

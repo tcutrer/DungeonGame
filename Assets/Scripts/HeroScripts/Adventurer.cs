@@ -132,7 +132,7 @@ public class Adventurer : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void FollowPath()
+    private void FollowPath(bool gotoSpawn = false)
     {
         if (pathfinding == null)
         {
@@ -144,10 +144,18 @@ public class Adventurer : MonoBehaviour
             return;
         }
         foundDestination = false;
-        Vector2 desiredPosition = FindDesiredPosition();
-        if (desiredPosition != null)
+        if (gotoSpawn)
         {
-            Move(desiredPosition);
+            Vector3 spawnPoint = gameManager.getSpawnPoint();
+            Move(spawnPoint);
+        }
+        else
+        {
+            Vector2 desiredPosition = FindDesiredPosition();
+            if (desiredPosition != null)
+            {
+                Move(desiredPosition);
+            }
         }
     }
 
@@ -283,9 +291,11 @@ public class Adventurer : MonoBehaviour
         {
             if (courage < 10) {
                 // Return to spawn point
-                Vector2 SpawnPoint = gameManager.getSpawnPoint();
-                Move(SpawnPoint);
-                
+                FollowPath(true);
+                Vector2 pos = gameManager.getSpawnPoint();
+                if (position == pos) {
+                    Destroy(gameObject);
+                }
             }
         }
         FollowPath();
