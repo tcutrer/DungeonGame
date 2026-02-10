@@ -24,7 +24,7 @@ public class Adventurer : MonoBehaviour
     private int courage = 5;
     private List<string> possibleNames = new List<string> {"Arin", "Bryn", "Cai", "Dara", "Eryn", "Finn", "Gwen", "Hale", "Ira", "Joss"};
 
-
+    private Game_Manger gameManager;
 
     void Awake()
     {
@@ -45,6 +45,7 @@ public class Adventurer : MonoBehaviour
         {
             pathfinding.SetTileOccupied((int)curGridPos.x, (int)curGridPos.y, true);
         }
+        gameManager = Game_Manger.instance;
     }
 
     void SetupAdventurer(AdventurerData data)
@@ -90,31 +91,29 @@ public class Adventurer : MonoBehaviour
         {
             pathfinding = PathfindingManager.Instance.GetPathfinding();
         }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            FollowPath();
-        }
-        if (movementCoroutine != null && !IsCoroutineRunning(movementCoroutine) && !foundDestination)
-        {
-            FollowPath();
-        }
+
         if (health <= 0)
         {
             Death(10); // Example gold reward
         }
-        if (Game_Manger.instance.Get_IsTimeToExplore())
+        if (!foundDestination && !IsCoroutineRunning(movementCoroutine))
         {
-            FollowPath();
+            makeDecision();
         }
-        else if (Game_Manger.instance.Get_IsTimeToExplore() == false)
-        {
-            if (courage < 10) {
-                // Return to spawn point
-                Vector2 spawnPosition = new Vector2(1, 1);
-                Move(spawnPosition);
-            }
+        // if (gameManager.TimeToExplore())
+        // {
+        //     makeDecision();
+        // }
+        // if (gameManager.TimeToExplore() == false)
+        // {
+        //     if (courage < 10) {
+        //         // Return to spawn point
+        //         Vector3 spawnPoint = gameManager.getSpawnPoint();
+        //         Move(spawnPoint);
+        //     }
 
-        }
+        //}
+        
     }
 
     private bool IsCoroutineRunning(Coroutine coroutine)
@@ -278,5 +277,18 @@ public class Adventurer : MonoBehaviour
         return finalDestination;
     }
 
+    private void makeDecision()
+    {
+        if (gameManager.TimeToExplore())
+        {
+            if (courage < 10) {
+                // Return to spawn point
+                Vector2 SpawnPoint = gameManager.getSpawnPoint();
+                Move(SpawnPoint);
+                
+            }
+        }
+        FollowPath();
+    }
     
 }

@@ -40,10 +40,6 @@ public class AdventurerManager : MonoBehaviour
         gameManager = Game_Manger.instance;
     }
 
-    private void SpawnAdventurer(string adventurerType, Vector3 spawnPosition)
-    {
-        // Fill in later
-    }
 
     public void incrementadventurercount_inMazeStillUP()
     {
@@ -53,6 +49,7 @@ public class AdventurerManager : MonoBehaviour
     public void decrementadventurercount_inMazeStillUP()
     {
         gameManager.adventurercount -= 1f;
+        adventurerCountStillInMaze -= 1;
     }
 
     public void SpawnAdventurer(Vector3 spawnPosition, int adventurerType)
@@ -73,6 +70,15 @@ public class AdventurerManager : MonoBehaviour
         adventurerCountThisWave += 1;
         adventurerCountStillInMaze += 1;
 
+    }
+    private void update(){
+        
+        if (adventurerCountStillInMaze <= 0) {
+            gameManager.areExplorersGone = true;
+        }
+        else {
+            gameManager.areExplorersGone = false;
+        }
     }
 
 }

@@ -15,7 +15,7 @@ public class Game_Manger : MonoBehaviour
     private bool isnight = true;
     private float time_to_explore = 0f;
     private float setTimeToExplore = 30f; 
-    private bool areExplorersGone = true;
+    public bool areExplorersGone = true;
     private bool isDay = false;
     private int Unit_nums = 0;
     private int Phase = 0;
@@ -35,6 +35,7 @@ public class Game_Manger : MonoBehaviour
     public float adventurercount = 0f;
     public int[,] tileValues { get; private set; }
     public bool[,] roomAvailable;
+    public Vector3 spawnPoint = new Vector3(-35, -35, -1);
     
     private int selectedSpriteIndex = 0;
 
@@ -244,7 +245,6 @@ public class Game_Manger : MonoBehaviour
         if (time_to_explore >= setTimeToExplore && areExplorersGone == true)
         {
             isDay = false;
-            time_to_explore = 0f;
             setNight();
             isnight = true;
             
@@ -312,6 +312,7 @@ public class Game_Manger : MonoBehaviour
         if (isnight == true && isDay == false)
         {
             setDay();
+            setSpawnPoint();
             isDay = true;
             isnight = false;
         }
@@ -322,6 +323,7 @@ public class Game_Manger : MonoBehaviour
         isnight = true;
         UnselectBlock();
         PlayerUI.SetActive(true);
+        time_to_explore = 0f;
     }
     private void setDay()
     {
@@ -329,6 +331,7 @@ public class Game_Manger : MonoBehaviour
         isDay = true;
         UnselectBlock();
         PlayerUI.SetActive(false);
+        setSpawnPoint();
         SpawnAdventurersForWave(adventurercountPerWave[wavecount]);
         areExplorersGone = false;
         
@@ -346,13 +349,13 @@ public class Game_Manger : MonoBehaviour
         for (int i = 0; i < adventurerCountThisWave; i++)
         {
             
-            Vector3 spawnPosition = new Vector3(-35, -35, -1);
+            Vector3 spawnPosition = spawnPoint;
             
             
             StartCoroutine(SpawnAdventurerCoroutine(spawnPosition, Random.Range(0, 3), i * 1.0f));
         }
     }
-    public bool Get_IsTimeToExplore()
+    public bool TimeToExplore()
     {
         if (time_to_explore >= setTimeToExplore)
         {
@@ -365,5 +368,25 @@ public class Game_Manger : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         AdventurerManager.Instance.SpawnAdventurer(spawnPosition, adventurerType);
+    }
+    private void setSpawnPoint()
+    {
+        for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
+        {
+            for (int y = 0; y < UF.getGridHeight() * UF.amountOfRooms[1]; y++)
+            {
+                int tileValue = grid.GetGridObject(x, y).GetComponent<SpriteChanger>().GetCurrentSpriteIndex();
+                if (tileValue == 2)
+                {
+                    spawnPoint = UF.GridToWorldCoords(new Vector2(x, y));
+                    spawnPoint = new Vector3(spawnPoint.x, spawnPoint.y, -1);
+                    return;
+                }
+            }
+        }
+    }
+    public Vector3 getSpawnPoint() 
+    {
+        return spawnPoint;
     }
 }
