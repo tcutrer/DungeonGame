@@ -47,7 +47,7 @@ public class UITextManager : MonoBehaviour
     {
         if (roomPurchaseText != null)
         {
-            roomPurchaseText.text = "Do you want to buy this room for:" + System.Environment.NewLine + roomCost + System.Environment.NewLine + "?";
+            roomPurchaseText.text = "Do you want to buy this room for:" + System.Environment.NewLine + System.Environment.NewLine + roomCost + System.Environment.NewLine + System.Environment.NewLine + "?";
             roomPurchasePanel.SetActive(true);
         }
     }

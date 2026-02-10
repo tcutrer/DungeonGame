@@ -92,22 +92,29 @@ public class Game_Manger : MonoBehaviour
         }
     }
 
-    private void Start()
+     private void Start()
     {
         UF = new UtilityFunctions();
+        testSprite = new Test_Sprite();
+        pathfinding = PathfindingManager.Instance.GetPathfinding();
+        setStartingOwnedRooms();
+        setupGrid();
+    }
+
+    private void setStartingOwnedRooms() 
+    {
         roomAvailable = new bool[UF.amountOfRooms[0], UF.amountOfRooms[1]];
         for (int x = 0; x < 2; x++)
         {
             for (int y = 0; y < 2; y++)
             {
-                roomAvailable[x, y] = true; // A 2x2 square is available for block placement
+                roomAvailable[x, y] = true;
             }
         }
-        // Initialize utilities and sprites
-        testSprite = new Test_Sprite();
-        pathfinding = PathfindingManager.Instance.GetPathfinding();
-        
-        // Initialize grid
+    }
+
+    private void setupGrid()
+    {
         grid = new Grid<GameObject>(UF.getGridWidth() * UF.amountOfRooms[0], UF.getGridHeight() * UF.amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         
         // Position all grid objects correctly
@@ -117,43 +124,43 @@ public class Game_Manger : MonoBehaviour
             {
                 Vector3 position = new Vector3(x * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(), y * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(), UF.getZPlane());
                 GameObject obj = grid.GetGridObject(position);
-                if (obj != null)
-                {
-                    // Snap the position to the grid
-                    Vector3 snappedPosition = new Vector3(
-                        Mathf.Floor((position.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
-                        Mathf.Floor((position.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
-                        UF.getZPlane()
-                    );
-                    obj.transform.position = snappedPosition;
-                }
-                if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) || (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
-                {
-                    GameObject tile = grid.GetGridObject(position);
-                    if (tile != null)
-                    {
-                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
-                        if (spriteChanger != null)
-                        {
-                            spriteChanger.ChangeSprite(1); // Set wall sprite
-                        }
-                    }
-                }
-                if (x == UF.getGridWidth() / 2 && y == 0)
-                {
-                    GameObject tile = grid.GetGridObject(position);
-                    if (tile != null)
-                    {
-                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
-                        if (spriteChanger != null)
-                        {
-                            spriteChanger.ChangeSprite(2); // Set door sprite
-                        }
-                    }
-                }
+                if (obj == null) continue;
+                Vector3 snappedPosition = new Vector3(
+                    Mathf.Floor((position.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                    Mathf.Floor((position.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                    UF.getZPlane()
+                );
+                obj.transform.position = snappedPosition;
+                setWallsUp(grid, x, y, position);
+                setUpMainDoor(grid, x, y, position);
             }
         }
     }
+
+    private void setWallsUp(Grid<GameObject> grid, int x, int y, Vector3 position) 
+    {
+        if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) || (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
+            {
+                GameObject tile = grid.GetGridObject(position);
+                if (tile == null) return;
+                SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                if (spriteChanger == null) return;
+                spriteChanger.ChangeSprite(1); // Set wall sprite
+            }
+        }
+
+    private void setUpMainDoor(Grid<GameObject> grid, int x, int y, Vector3 position) 
+    {
+        if (x == UF.getGridWidth() / 2 && y == 0)
+            {
+                GameObject tile = grid.GetGridObject(position);
+                if (tile == null) return;
+                SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                if (spriteChanger == null) return;
+                spriteChanger.ChangeSprite(2); // Set door sprite
+            }
+        }
+
     
     public void PlaceBlock(Vector3 position)
     {
