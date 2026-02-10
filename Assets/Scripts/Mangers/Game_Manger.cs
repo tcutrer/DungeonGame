@@ -34,7 +34,7 @@ public class Game_Manger : MonoBehaviour
     private Creature creature;
     public float adventurercount = 0f;
     public int[,] tileValues { get; private set; }
-    bool[,] roomAvailable;
+    public bool[,] roomAvailable;
     
     private int selectedSpriteIndex = 0;
 
@@ -95,19 +95,26 @@ public class Game_Manger : MonoBehaviour
     private void Start()
     {
         UF = new UtilityFunctions();
+        testSprite = new Test_Sprite();
+        pathfinding = PathfindingManager.Instance.GetPathfinding();
+        setStartingOwnedRooms();
+        setupGrid();
+    }
+
+    private void setStartingOwnedRooms() 
+    {
         roomAvailable = new bool[UF.amountOfRooms[0], UF.amountOfRooms[1]];
         for (int x = 0; x < 2; x++)
         {
             for (int y = 0; y < 2; y++)
             {
-                roomAvailable[x, y] = true; // A 2x2 square is available for block placement
+                roomAvailable[x, y] = true;
             }
         }
-        // Initialize utilities and sprites
-        testSprite = new Test_Sprite();
-        pathfinding = PathfindingManager.Instance.GetPathfinding();
-        
-        // Initialize grid
+    }
+
+    private void setupGrid()
+    {
         grid = new Grid<GameObject>(UF.getGridWidth() * UF.amountOfRooms[0], UF.getGridHeight() * UF.amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         
         // Position all grid objects correctly
@@ -117,60 +124,54 @@ public class Game_Manger : MonoBehaviour
             {
                 Vector3 position = new Vector3(x * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(), y * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(), UF.getZPlane());
                 GameObject obj = grid.GetGridObject(position);
-                if (obj != null)
-                {
-                    // Snap the position to the grid
-                    Vector3 snappedPosition = new Vector3(
-                        Mathf.Floor((position.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
-                        Mathf.Floor((position.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
-                        UF.getZPlane()
-                    );
-                    obj.transform.position = snappedPosition;
-                }
-                if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) || (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
-                {
-                    GameObject tile = grid.GetGridObject(position);
-                    if (tile != null)
-                    {
-                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
-                        if (spriteChanger != null)
-                        {
-                            spriteChanger.ChangeSprite(1); // Set wall sprite
-                        }
-                    }
-                }
-                if (x == UF.getGridWidth() / 2 && y == 0)
-                {
-                    GameObject tile = grid.GetGridObject(position);
-                    if (tile != null)
-                    {
-                        SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
-                        if (spriteChanger != null)
-                        {
-                            spriteChanger.ChangeSprite(2); // Set door sprite
-                        }
-                    }
-                }
+                if (obj == null) continue;
+                Vector3 snappedPosition = new Vector3(
+                    Mathf.Floor((position.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                    Mathf.Floor((position.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                    UF.getZPlane()
+                );
+                obj.transform.position = snappedPosition;
+                setWallsUp(grid, x, y, position);
+                setUpMainDoor(grid, x, y, position);
             }
         }
     }
+
+    private void setWallsUp(Grid<GameObject> grid, int x, int y, Vector3 position) 
+    {
+        if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) || (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
+            {
+                GameObject tile = grid.GetGridObject(position);
+                if (tile == null) return;
+                SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                if (spriteChanger == null) return;
+                spriteChanger.ChangeSprite(1); // Set wall sprite
+            }
+        }
+
+    private void setUpMainDoor(Grid<GameObject> grid, int x, int y, Vector3 position) 
+    {
+        if (x == UF.getGridWidth() / 2 && y == 0)
+            {
+                GameObject tile = grid.GetGridObject(position);
+                if (tile == null) return;
+                SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                if (spriteChanger == null) return;
+                spriteChanger.ChangeSprite(2); // Set door sprite
+            }
+        }
+
     
     public void PlaceBlock(Vector3 position)
     {
-        if (grid == null)
-        {
-            Debug.LogError("Grid is null in PlaceBlock!");
-            return;
-        }
-        if (CurrencyManager.Instance == null)
-        {
-            Debug.LogError("PlaceBlock: CurrencyManager instance is null!");
-            return;
-        }
+        if (grid == null) return;
 
-        if (roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
+        if (CurrencyManager.Instance == null) return;
+
+        if (!roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
         {
-            Debug.LogWarning("PlaceBlock: Attempted to place block outside of availible bounds!");
+            Debug.Log("PlaceBlock: Attempted to place block outside of availible bounds!");
+            UITextManager.Instance.ShowRoomPurchaseText(50, position);
             return;
         }
         Debug.Log((UF.WorldToGridCoords(position).x / UF.getGridWidth()) + ", " + (UF.WorldToGridCoords(position).y / UF.getGridHeight()));
@@ -178,34 +179,44 @@ public class Game_Manger : MonoBehaviour
         GameObject obj = grid.GetGridObject(mouseWorld);
         if (isDay == true) return;
         if (select_mode == true) return;
-        if (obj != null) {
-            SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
-            if (spriteChanger != null) {
-                if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false)
-                {
-                    Debug.Log("Not enough currency to place block!");
-                    return;
-                }
-                // Check if selected sprite is a creature costume
-                for (int i = 0; i < creatureCostumes.Count; i++) {
-                    if (selectedSpriteIndex == creatureCostumes[i]) {
-                        Vector3 snappedPosition = new Vector3(
-                            Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
-                            Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
-                            UF.getZPlane()
-                        );
-                        if (i == 0)
-                        {
-                            creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
-                        }
-                        //creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
-                    }
-                }
-                spriteChanger.ChangeSprite(selectedSpriteIndex);
+        if (obj == null) return;
+
+        SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
+        if (spriteChanger == null) return;
+
+        if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false) return;
+        // Check if selected sprite is a creature costume
+        for (int i = 0; i < creatureCostumes.Count; i++) {
+            if (selectedSpriteIndex != creatureCostumes[i]) continue;
+            Vector3 snappedPosition = new Vector3(
+                Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+                Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+                UF.getZPlane()
+            );
+            switch(i) {
+                case 1:
+                    creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    break;
+                default:
+                    creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    break;
             }
         }
+        spriteChanger.ChangeSprite(selectedSpriteIndex);
     }
-    
+
+    public void unlockRoom(Vector3 position)
+    {
+        int roomX = (int)(UF.WorldToGridCoords(position).x / UF.getGridWidth());
+        int roomY = (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight());
+        if (roomX < 0 || roomX >= UF.amountOfRooms[0] || roomY < 0 || roomY >= UF.amountOfRooms[1])
+        {
+            Debug.LogError("UnlockRoom: Attempted to unlock room outside of bounds!");
+            return;
+        }
+        roomAvailable[roomX, roomY] = true;
+        Debug.Log("Room at " + roomX + ", " + roomY + " unlocked!");
+    }
 
     private void Update()
     {
@@ -252,6 +263,52 @@ public class Game_Manger : MonoBehaviour
     }
     public void ReadyForDay()
     {
+        List<Vector2> tilesToCheckPathfind = new List<Vector2> {};
+        Vector2 mainDoorCords = new Vector2(-1, -1);
+        bool goodGrid = true;
+        for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
+        {
+            for (int y = 0; y < UF.getGridHeight() * UF.amountOfRooms[1]; y++)
+            {
+                int tileValue = grid.GetGridObject(x, y).GetComponent<SpriteChanger>().GetCurrentSpriteIndex();
+                switch (tileValue)
+                {
+                    case 2:
+                        if (mainDoorCords.x == -1 && mainDoorCords.y == -1)
+                        {
+                            mainDoorCords = new Vector2(x, y);
+                        }
+                        else
+                        {
+                            goodGrid = false;
+                        }
+                        break;
+                    case 4:
+                        tilesToCheckPathfind.Add(new Vector2(x, y));
+                        break;
+                    default:
+                        if ((x == 0 || x == (UF.getGridWidth() * UF.amountOfRooms[0] - 1) || y == 0 || y == (UF.getGridHeight() * UF.amountOfRooms[1] - 1)) && tileValue != 1)
+                        {
+                            Debug.Log("ReadyForDay: Outer wall tile at " + x + ", " + y + " is not set as a wall! Please fix your grid!");
+                            goodGrid = false;
+                        }
+                        break;
+                }
+            }
+        }
+        if (goodGrid == false || mainDoorCords.x == -1 || mainDoorCords.y == -1)
+        {
+            return;
+        }
+        for (int i = 0; i < tilesToCheckPathfind.Count; i++)
+        {
+            path = pathfinding.FindPath((int)mainDoorCords.x, (int)mainDoorCords.y, (int)tilesToCheckPathfind[i].x, (int)tilesToCheckPathfind[i].y);
+            if (path == null)
+            {
+                Debug.Log("ReadyForDay: No path found from main door to tile at " + tilesToCheckPathfind[i] + "! Please fix your grid!");
+                return;
+            }
+        }
         if (isnight == true && isDay == false)
         {
             setDay();
