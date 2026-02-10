@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlaceBlock : MonoBehaviour
+public class UnselectBlock : MonoBehaviour
 {
+
     private Camera _mainCamera;
 
     private void Awake()
@@ -15,7 +16,7 @@ public class PlaceBlock : MonoBehaviour
         }
     }
 
-    public void place(InputAction.CallbackContext context)
+    public void Unselect(InputAction.CallbackContext context)
     {
         if (!context.performed)
         {
@@ -33,22 +34,7 @@ public class PlaceBlock : MonoBehaviour
             Debug.LogError("PlaceBlock: Game_Manger instance is null!");
             return;
         }
-
-        float mouseY = Mouse.current.position.ReadValue().y;
-        Debug.Log("Mouse Y Position: " + mouseY);
-
-        if (Mouse.current.position.ReadValue().y >= 530)
-        {
-            Debug.Log("Mouse Y Position: " + mouseY + " - Ignoring block placement input.");
-            return;
-        }
         if (PauseScript.isPaused) return;
-        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        mouseWorld.z = 0f;
-
-        Game_Manger.instance.PlaceBlock(mouseWorld);
+        Game_Manger.instance.UnselectBlock();
     }
 }
-
-
-

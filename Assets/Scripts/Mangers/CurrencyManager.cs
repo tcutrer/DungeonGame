@@ -4,6 +4,7 @@ public class CurrencyManager : MonoBehaviour
 {
     public static CurrencyManager Instance { get; private set; }
     public int Gold { get; private set; }
+    [SerializeField] private int startingGold = 100;
 
     private void Awake()
     {
@@ -19,7 +20,7 @@ public class CurrencyManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Gold = 50;
+        Gold = startingGold;
     }
 
     // Update is called once per frame

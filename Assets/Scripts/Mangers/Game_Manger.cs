@@ -1,16 +1,26 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using System.Collections;
 using System.Collections.Generic;
 
 public class Game_Manger : MonoBehaviour
 {
     // Private Variables
+    public bool select_mode = true;
+    private int wavecount = 0;
+    private List<int> adventurercountPerWave = new List<int> {3, 5, 7, 10, 12, 15};
     private bool Is_play = false;
     private float Cycle_time = 0f;
+    private bool isnight = true;
+    private float time_to_explore = 0f;
+    private float setTimeToExplore = 30f; 
+    private bool areExplorersGone = true;
+    private bool isDay = false;
     private int Unit_nums = 0;
     private int Phase = 0;
     private Grid<GameObject> grid;
+    public GameObject PlayerUI;
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
     private Vector3 mouseWorld;
@@ -18,14 +28,17 @@ public class Game_Manger : MonoBehaviour
     private List<PathNode> path;
     private UtilityFunctions UF;
     [SerializeField] private GameObject farmerPrefab;
+    [SerializeField] private GameObject mushlingPrefab;
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
+    private Creature creature;
+    public float adventurercount = 0f;
     public int[,] tileValues { get; private set; }
-    private List<int> amountOfRooms = new List<int> {11, 11};
+    bool[,] roomAvailable;
     
     private int selectedSpriteIndex = 0;
 
-
+    
     public static Game_Manger instance { get; private set; }
 
     // Getters
@@ -81,18 +94,26 @@ public class Game_Manger : MonoBehaviour
 
     private void Start()
     {
-        // Initialize utilities and sprites
         UF = new UtilityFunctions();
+        roomAvailable = new bool[UF.amountOfRooms[0], UF.amountOfRooms[1]];
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 2; y++)
+            {
+                roomAvailable[x, y] = true; // A 2x2 square is available for block placement
+            }
+        }
+        // Initialize utilities and sprites
         testSprite = new Test_Sprite();
         pathfinding = PathfindingManager.Instance.GetPathfinding();
         
         // Initialize grid
-        grid = new Grid<GameObject>(UF.getGridWidth() * amountOfRooms[0], UF.getGridHeight() * amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
+        grid = new Grid<GameObject>(UF.getGridWidth() * UF.amountOfRooms[0], UF.getGridHeight() * UF.amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
         
         // Position all grid objects correctly
-        for (int x = 0; x < UF.getGridWidth() * amountOfRooms[0]; x++)
+        for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
         {
-            for (int y = 0; y < UF.getGridHeight() * amountOfRooms[1]; y++)
+            for (int y = 0; y < UF.getGridHeight() * UF.amountOfRooms[1]; y++)
             {
                 Vector3 position = new Vector3(x * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(), y * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(), UF.getZPlane());
                 GameObject obj = grid.GetGridObject(position);
@@ -141,11 +162,30 @@ public class Game_Manger : MonoBehaviour
             Debug.LogError("Grid is null in PlaceBlock!");
             return;
         }
+        if (CurrencyManager.Instance == null)
+        {
+            Debug.LogError("PlaceBlock: CurrencyManager instance is null!");
+            return;
+        }
+
+        if (roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
+        {
+            Debug.LogWarning("PlaceBlock: Attempted to place block outside of availible bounds!");
+            return;
+        }
+        Debug.Log((UF.WorldToGridCoords(position).x / UF.getGridWidth()) + ", " + (UF.WorldToGridCoords(position).y / UF.getGridHeight()));
 
         GameObject obj = grid.GetGridObject(mouseWorld);
+        if (isDay == true) return;
+        if (select_mode == true) return;
         if (obj != null) {
             SpriteChanger spriteChanger = obj.GetComponent<SpriteChanger>();
             if (spriteChanger != null) {
+                if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false)
+                {
+                    Debug.Log("Not enough currency to place block!");
+                    return;
+                }
                 // Check if selected sprite is a creature costume
                 for (int i = 0; i < creatureCostumes.Count; i++) {
                     if (selectedSpriteIndex == creatureCostumes[i]) {
@@ -154,14 +194,18 @@ public class Game_Manger : MonoBehaviour
                             Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
                             UF.getZPlane()
                         );
-                        adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
-                        return;
+                        if (i == 0)
+                        {
+                            creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                        }
+                        //creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
                     }
                 }
                 spriteChanger.ChangeSprite(selectedSpriteIndex);
             }
         }
     }
+    
 
     private void Update()
     {
@@ -175,10 +219,94 @@ public class Game_Manger : MonoBehaviour
         }
         tileValues = UF.GetGridArrayTileValues(grid);
         pathfinding.SetWalkables(tileValues);
+
+        if (isDay == true && time_to_explore < setTimeToExplore)
+        {
+            time_to_explore += Time.deltaTime;
+        }
+        
+        if (adventurercount <= 0f)
+        {
+            areExplorersGone = true;
+        }
+
+        if (time_to_explore >= setTimeToExplore && areExplorersGone == true)
+        {
+            isDay = false;
+            time_to_explore = 0f;
+            setNight();
+            isnight = true;
+            
+        }
+
     }
 
     public void SelectSprite(int spriteIndex)
     {
         selectedSpriteIndex = spriteIndex;
+    }
+
+    public void UnselectBlock()
+    {
+        selectedSpriteIndex = 0; // Reset to default or no selection
+    }
+    public void ReadyForDay()
+    {
+        if (isnight == true && isDay == false)
+        {
+            setDay();
+            isDay = true;
+            isnight = false;
+        }
+    }
+    private void setNight()
+    {
+        isDay = false;
+        isnight = true;
+        UnselectBlock();
+        PlayerUI.SetActive(true);
+    }
+    private void setDay()
+    {
+        isnight = false;
+        isDay = true;
+        UnselectBlock();
+        PlayerUI.SetActive(false);
+        SpawnAdventurersForWave(adventurercountPerWave[wavecount]);
+        areExplorersGone = false;
+        
+    }
+    public void incrementadventurercount(float value)
+    {
+        adventurercount += value;
+    }
+    public void setSelectModeTrue(bool value)
+    {
+        select_mode = value;
+    }
+    private void SpawnAdventurersForWave(int adventurerCountThisWave)
+    {
+        for (int i = 0; i < adventurerCountThisWave; i++)
+        {
+            
+            Vector3 spawnPosition = new Vector3(-35, -35, -1);
+            
+            
+            StartCoroutine(SpawnAdventurerCoroutine(spawnPosition, Random.Range(0, 3), i * 1.0f));
+        }
+    }
+    public bool Get_IsTimeToExplore()
+    {
+        if (time_to_explore >= setTimeToExplore)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    IEnumerator SpawnAdventurerCoroutine(Vector3 spawnPosition, int adventurerType, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        AdventurerManager.Instance.SpawnAdventurer(spawnPosition, adventurerType);
     }
 }

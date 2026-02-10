@@ -11,6 +11,7 @@ namespace SkellyCursor
         [SerializeField] private Texture2D cursorTextureGrab;
 
         [SerializeField] private Vector2 clickPosition = Vector2.zero;
+        [SerializeField] private Vector2 cursorHotSpot;
 
 
         private void Awake()
@@ -31,7 +32,8 @@ namespace SkellyCursor
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            Cursor.SetCursor(cursorTextureDefault, clickPosition, CursorMode.Auto);
+            cursorHotSpot = new Vector2(80, 0);
+            Cursor.SetCursor(cursorTextureDefault, cursorHotSpot, CursorMode.Auto);
         }
         void Update()
         {
@@ -49,16 +51,16 @@ namespace SkellyCursor
             switch (modeOfCursor)
             {
                 case ModeOfCursor.Default:
-                    Cursor.SetCursor(cursorTextureDefault, clickPosition, CursorMode.Auto);
+                    Cursor.SetCursor(cursorTextureDefault, cursorHotSpot, CursorMode.Auto);
                     break;
                 case ModeOfCursor.Hover:
-                    Cursor.SetCursor(cursorTextureHover, clickPosition, CursorMode.Auto);
+                    Cursor.SetCursor(cursorTextureHover, cursorHotSpot, CursorMode.Auto);
                     break;
                 case ModeOfCursor.Grab:
-                    Cursor.SetCursor(cursorTextureGrab, clickPosition, CursorMode.Auto);
+                    Cursor.SetCursor(cursorTextureGrab, cursorHotSpot, CursorMode.Auto);
                     break;
                 default:
-                    Cursor.SetCursor(cursorTextureDefault, clickPosition, CursorMode.Auto);
+                    Cursor.SetCursor(cursorTextureDefault, cursorHotSpot, CursorMode.Auto);
                     break;
             }
         }

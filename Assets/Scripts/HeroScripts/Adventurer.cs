@@ -8,6 +8,7 @@ public class Adventurer : MonoBehaviour
     public int health;
     public float speed;
     public int attackPower;
+    public string adventurerName;
     public Vector2 position;
     private Pathfinding pathfinding;
     private UtilityFunctions UF;
@@ -18,6 +19,12 @@ public class Adventurer : MonoBehaviour
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
     public const int searchRange = 15;
+    private int waitTime = 0;
+    private bool foundDestination = false;
+    private int courage = 5;
+    private List<string> possibleNames = new List<string> {"Arin", "Bryn", "Cai", "Dara", "Eryn", "Finn", "Gwen", "Hale", "Ira", "Joss"};
+
+
 
     void Awake()
     {
@@ -32,6 +39,12 @@ public class Adventurer : MonoBehaviour
         UF = new UtilityFunctions();
         SetupAdventurer(adventurerData);
         pathfinding = PathfindingManager.Instance.GetPathfinding();
+        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+
+        if (pathfinding != null)
+        {
+            pathfinding.SetTileOccupied((int)curGridPos.x, (int)curGridPos.y, true);
+        }
     }
 
     void SetupAdventurer(AdventurerData data)
@@ -42,12 +55,14 @@ public class Adventurer : MonoBehaviour
             health = 100;
             speed = 5f * 10;
             attackPower = 10;
+            adventurerName = possibleNames[UnityEngine.Random.Range(0, possibleNames.Count)];
         }
         else
         {
             health = data.health;
             speed = data.speed * 10;
             attackPower = data.attackPower;
+            adventurerName = data.adventurerName;
         }
         position = new Vector3(-35, -35, -1);
     }
@@ -79,6 +94,32 @@ public class Adventurer : MonoBehaviour
         {
             FollowPath();
         }
+        if (movementCoroutine != null && !IsCoroutineRunning(movementCoroutine) && !foundDestination)
+        {
+            FollowPath();
+        }
+        if (health <= 0)
+        {
+            Death(10); // Example gold reward
+        }
+        if (Game_Manger.instance.Get_IsTimeToExplore())
+        {
+            FollowPath();
+        }
+        else if (Game_Manger.instance.Get_IsTimeToExplore() == false)
+        {
+            if (courage < 10) {
+                // Return to spawn point
+                Vector2 spawnPosition = new Vector2(1, 1);
+                Move(spawnPosition);
+            }
+
+        }
+    }
+
+    private bool IsCoroutineRunning(Coroutine coroutine)
+    {
+        return coroutine != null;
     }
 
     public void Death(int goldReward)
@@ -88,6 +129,7 @@ public class Adventurer : MonoBehaviour
         {
             currencyManager.AddGold(goldReward);
         }
+        AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
         Destroy(gameObject);
     }
 
@@ -102,12 +144,18 @@ public class Adventurer : MonoBehaviour
             Debug.LogError("Pathfinding is null! PathfindingManager may not be initialized.");
             return;
         }
+        foundDestination = false;
         Vector2 desiredPosition = FindDesiredPosition();
-        Move(desiredPosition);
+        if (desiredPosition != null)
+        {
+            Move(desiredPosition);
+        }
     }
 
     private void Move(Vector2 newPosition)
     {
+        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+        pathfinding.SetTileOccupied((int)curGridPos.x, (int)curGridPos.y, false);
         Grid<PathNode> grid = pathfinding.GetGrid();
         if (grid == null)
         {
@@ -138,21 +186,53 @@ public class Adventurer : MonoBehaviour
 
          while (pathIndex < path.Count)
         {
-            // Convert grid coordinates back to world position properly
-            // Grid origin is at (-100, -70) with cell size of 10
+            // Check if the next tile is occupied
+            if (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()))
+            {
+                    while (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()))
+                    {
+                    waitTime++;
+                    if (waitTime > 300) // Wait up to 5 seconds (300 frames at 60fps)
+                    {
+                        Debug.Log("Adventurer " + id + " is stuck and cannot move!");
+                        FollowPath(); // Recalculate path
+                        yield break;
+                    }
+                    yield return null;
+                    continue; // Skip the rest and check again next frame
+                }
+            }
+
+            waitTime = 0;
+            
+            // Clear previous tile as unoccupied
+            if (pathIndex > 0)
+            {
+                pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
+            }
+
+            // Mark current tile as occupied
+            pathfinding.SetTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY(), true);
+            
             Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
             targetPosition.z = -1;
             currentDestination = targetPosition;
             
+            // Move to target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
-                 Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
-                newPosition.z = -1; // Preserve z = -1 after movement
+                Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+                newPosition.z = -1;
                 transform.position = newPosition;
                 yield return null;
             }
+        
+
             pathIndex++;
         }
+
+        // Clear the last tile when path is complete
+        foundDestination = true;
     }
 
     private Vector2 FindDesiredPosition()
@@ -176,7 +256,7 @@ public class Adventurer : MonoBehaviour
                 if (checkX >= 0 && checkX < tileValues.GetLength(0) && 
                     checkY >= 0 && checkY < tileValues.GetLength(1))
                 {
-                    if (tileValues[checkX, checkY] == 2) // Assuming 2 represents a target tile
+                    if (tileValues[checkX, checkY] == 2 && !pathfinding.IsTileOccupied(checkX, checkY) && !(curX == checkX && curY == checkY)) // Assuming 2 represents a target tile
                     {
                         possibleDestinations.Add(new Vector2(checkX, checkY));
                     }
@@ -188,6 +268,8 @@ public class Adventurer : MonoBehaviour
         if (possibleDestinations.Count != 0)
         {
             finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
+            finalDestination += new Vector2(UnityEngine.Random.Range(-1, 1), UnityEngine.Random.Range(-1, 1));
+            foundDestination = false;
         }
         else
         {

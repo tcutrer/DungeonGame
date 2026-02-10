@@ -11,9 +11,9 @@ public class Zoom : MonoBehaviour
     private void Awake()
     {
         _mainCamera = Camera.main;
-        min_zoom = 5f;
-        max_zoom = 100f;
-        zoom_sensitivity = 1f;
+        min_zoom = 80f;
+        max_zoom = 350f;
+        zoom_sensitivity = 8f;
     }
 
     public void OnZoom(InputAction.CallbackContext context)

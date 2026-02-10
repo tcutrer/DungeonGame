@@ -13,6 +13,7 @@ public class UtilityFunctions {
     private const float DISPLAY_SPRITE_Y = 0f;
     private const float Z_PLANE = 0f;
     private const float WHY_OFFSET = CELL_SIZE / 2f;
+    public readonly List<int> amountOfRooms = new List<int> {5, 5};
     private static Camera mainCamera = Camera.main;
     private static Vector3 mouseWorldPosition;
 
@@ -80,17 +81,21 @@ public class UtilityFunctions {
 
     public Vector3 GridToWorldCoords(Vector3 GridCoords)
     {
-        Vector3 worldCoords = new Vector3();
-        worldCoords.x = GridCoords.x * CELL_SIZE + GRID_OFFSET_X + (CELL_SIZE / 2f);
-        worldCoords.y = GridCoords.y * CELL_SIZE + GRID_OFFSET_Y + (CELL_SIZE / 2f);
+        Vector3 worldCoords = new Vector3
+        {
+            x = GridCoords.x * CELL_SIZE + GRID_OFFSET_X + (CELL_SIZE / 2f),
+            y = GridCoords.y * CELL_SIZE + GRID_OFFSET_Y + (CELL_SIZE / 2f)
+        };
         return worldCoords;
     }
 
     public Vector3 WorldToGridCoords(Vector3 WorldCoords)
     {
-        Vector3 gridCoords = new Vector3();
-        gridCoords.x = Mathf.FloorToInt((WorldCoords.x - GRID_OFFSET_X) / CELL_SIZE);
-        gridCoords.y = Mathf.FloorToInt((WorldCoords.y - GRID_OFFSET_Y) / CELL_SIZE);
+        Vector3 gridCoords = new Vector3
+        {
+            x = Mathf.FloorToInt((WorldCoords.x - GRID_OFFSET_X) / CELL_SIZE),
+            y = Mathf.FloorToInt((WorldCoords.y - GRID_OFFSET_Y) / CELL_SIZE)
+        };
         return gridCoords;
     }
 

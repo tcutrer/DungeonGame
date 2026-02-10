@@ -22,7 +22,7 @@ public class PathfindingManager : MonoBehaviour
     private void Start()
     {
         UF = new UtilityFunctions();
-        pathfinding = new Pathfinding(UF.getGridWidth(), UF.getGridHeight());
+        pathfinding = new Pathfinding(UF.getGridWidth() * UF.amountOfRooms[0], UF.getGridHeight() * UF.amountOfRooms[1]);
     }
 
     public Pathfinding GetPathfinding()
