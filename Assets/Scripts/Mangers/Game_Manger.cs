@@ -197,6 +197,9 @@ public class Game_Manger : MonoBehaviour
                 case 1:
                     creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
                     break;
+                case 2:
+                    adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
+                    break;
                 default:
                     creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
                     break;

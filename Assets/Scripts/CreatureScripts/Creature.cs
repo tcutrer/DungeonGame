@@ -19,7 +19,7 @@ public class Creature : MonoBehaviour
     public Vector2 currentDestination { get; private set; }
     public const int searchRange = 15;
     private int waitTime = 0;
-    private bool foundDestination = false;
+    public bool foundDestination = false;
 
     void Awake()
     {
