@@ -36,6 +36,7 @@ public class Creature : MonoBehaviour
         pathfinding = PathfindingManager.Instance.GetPathfinding();
     }
 
+    // Sets up defalt creature or certen creature given data
     void SetupCreature(CreatureData data)
     {
         if (data == null)
@@ -54,6 +55,7 @@ public class Creature : MonoBehaviour
         position = new Vector3(-35, -35, -1);
     }
 
+    // Creates a creature 
     public static Creature CreateCreature(GameObject prefab, Vector3 spawnPosition)
     {
         if (prefab == null) {
@@ -92,16 +94,13 @@ public class Creature : MonoBehaviour
         return coroutine != null;
     }
 
+    // Destroys Creature
     public void Death(int goldReward)
     {
-        CurrencyManager currencyManager = CurrencyManager.Instance;
-        if (currencyManager != null)
-        {
-            currencyManager.AddGold(goldReward);
-        }
         Destroy(gameObject);
     }
 
+    /// Change this to have creatures path find to neerest Adventurer
     private void FollowPath()
     {
         if (pathfinding == null)

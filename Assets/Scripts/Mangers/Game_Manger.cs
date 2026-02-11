@@ -27,8 +27,11 @@ public class Game_Manger : MonoBehaviour
     private Pathfinding pathfinding;
     private List<PathNode> path;
     private UtilityFunctions UF;
+    //Prefabs
     [SerializeField] private GameObject farmerPrefab;
     [SerializeField] private GameObject mushlingPrefab;
+    [SerializeField] private GameObject batpirePrefab;
+
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
     private Creature creature;
@@ -194,8 +197,11 @@ public class Game_Manger : MonoBehaviour
                 UF.getZPlane()
             );
             switch(i) {
-                case 1:
+                case 0:
                     creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    break;
+                case 1:
+                    creature = Creature.CreateCreature(batpirePrefab, snappedPosition);
                     break;
                 case 2:
                     adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
