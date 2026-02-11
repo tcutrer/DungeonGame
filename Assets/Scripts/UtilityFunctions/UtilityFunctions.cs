@@ -65,11 +65,14 @@ public class UtilityFunctions {
                             case 0:
                                 intArray[x, y] = 1; // Walkable tile
                                 break;
+                            case 2:
+                                intArray[x, y] = 2; // Door/Spawn tile - walkable
+                                break;
                             case 4:
-                                intArray[x, y] = 2; // Desired tile
+                                intArray[x, y] = 2; // Desired tile - walkable
                                 break;
                             default:
-                                intArray[x, y] = 0; // Unknown tile
+                                intArray[x, y] = 0; // Unknown tile (walls, etc)
                                 break;
                         }
                     }

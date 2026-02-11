@@ -68,6 +68,20 @@ public class Pathfinding
             return null;
         }
 
+        // Check bounds for start position
+        if (startX < 0 || startX >= grid.GetWidth() || startY < 0 || startY >= grid.GetHeight())
+        {
+            Debug.LogError("Start coordinates (" + startX + ", " + startY + ") are out of bounds! Grid size: " + grid.GetWidth() + "x" + grid.GetHeight());
+            return null;
+        }
+
+        // Check bounds for end position
+        if (endX < 0 || endX >= grid.GetWidth() || endY < 0 || endY >= grid.GetHeight())
+        {
+            Debug.LogError("End coordinates (" + endX + ", " + endY + ") are out of bounds! Grid size: " + grid.GetWidth() + "x" + grid.GetHeight());
+            return null;
+        }
+
         PathNode startNode = grid.GetGridObject(startX, startY);
         PathNode endNode = grid.GetGridObject(endX, endY);
 

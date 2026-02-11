@@ -44,6 +44,7 @@ public class AdventurerManager : MonoBehaviour
     public void incrementadventurercount_inMazeStillUP()
     {
         gameManager.adventurercount += 1f;
+        adventurerCountStillInMaze += 1;
     }
 
     public void decrementadventurercount_inMazeStillUP()
@@ -68,10 +69,9 @@ public class AdventurerManager : MonoBehaviour
                 break;
         }
         adventurerCountThisWave += 1;
-        adventurerCountStillInMaze += 1;
-
+        incrementadventurercount_inMazeStillUP();
     }
-    private void update(){
+    private void Update(){
         
         if (adventurerCountStillInMaze <= 0) {
             gameManager.areExplorersGone = true;

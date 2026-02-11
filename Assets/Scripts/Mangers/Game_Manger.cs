@@ -307,8 +307,8 @@ public class Game_Manger : MonoBehaviour
         }
         if (isnight == true && isDay == false)
         {
-            setDay();
             setSpawnPoint();
+            setDay();
             isDay = true;
             isnight = false;
         }

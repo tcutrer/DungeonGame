@@ -21,7 +21,9 @@ public class Adventurer : MonoBehaviour
     public const int searchRange = 15;
     private int waitTime = 0;
     private bool foundDestination = false;
-    private int courage = 5;
+    private bool isReturningToSpawn = false;
+    private int waitTimeForSpawn = 0;
+    private int returnAttempts = 0;
     private List<string> possibleNames = new List<string> {"Arin", "Bryn", "Cai", "Dara", "Eryn", "Finn", "Gwen", "Hale", "Ira", "Joss"};
 
     private Game_Manger gameManager;
@@ -96,7 +98,7 @@ public class Adventurer : MonoBehaviour
         {
             Death(10); // Example gold reward
         }
-        if (!foundDestination && !IsCoroutineRunning(movementCoroutine))
+        if (!IsCoroutineRunning(movementCoroutine))
         {
             makeDecision();
         }
@@ -146,8 +148,14 @@ public class Adventurer : MonoBehaviour
         foundDestination = false;
         if (gotoSpawn)
         {
-            Vector3 spawnPoint = gameManager.getSpawnPoint();
-            Move(spawnPoint);
+            Vector3 spawnPointWorld = gameManager.getSpawnPoint();
+            Vector2 spawnPointGrid = UF.WorldToGridCoords(spawnPointWorld);
+            
+            if (isReturningToSpawn)
+            {
+                Debug.Log("Adventurer " + id + " attempting spawn path - spawn world: " + spawnPointWorld + " -> grid: " + spawnPointGrid);
+            }
+            Move(spawnPointGrid);
         }
         else
         {
@@ -166,7 +174,7 @@ public class Adventurer : MonoBehaviour
         Grid<PathNode> grid = pathfinding.GetGrid();
         if (grid == null)
         {
-            Debug.LogError("Grid is null in Move()!");
+            Debug.LogError("Adventurer " + id + ": Grid is null in Move()!");
             return;
         }
         // Get current position as grid coordinates
@@ -176,14 +184,57 @@ public class Adventurer : MonoBehaviour
         int endX = (int)newPosition.x;
         int endY = (int)newPosition.y;
         
-        List<PathNode> path = pathfinding.FindPath(startX, startY, endX, endY);
-        if (path == null || path.Count == 0)
+        // Validate coordinates are in bounds
+        if (endX < 0 || endX >= grid.GetWidth() || endY < 0 || endY >= grid.GetHeight())
+        {
+            Debug.LogError("Adventurer " + id + ": Target out of bounds! (" + endX + "," + endY + ") grid is " + grid.GetWidth() + "x" + grid.GetHeight());
+            if (isReturningToSpawn)
+            {
+                Debug.LogError("Adventurer " + id + ": SPAWN POINT IS OUT OF BOUNDS! This is a major problem.");
+                // Give up on return
+                AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
+                Destroy(gameObject);
+            }
             return;
+        }
+        
+        if (isReturningToSpawn)
+        {
+            Debug.Log("Adventurer " + id + ": Pathfinding from (" + startX + "," + startY + ") to spawn at (" + endX + "," + endY + ")");
+        }
+        
+        List<PathNode> path = pathfinding.FindPath(startX, startY, endX, endY);
+        if (path == null)
+        {
+            Debug.LogError("Adventurer " + id + ": FindPath returned null from (" + startX + "," + startY + ") to (" + endX + "," + endY + ")");
+            if (isReturningToSpawn)
+            {
+                returnAttempts++;
+                Debug.LogError("Adventurer " + id + ": Spawn is unreachable! Attempt " + returnAttempts);
+                if (returnAttempts > 5)
+                {
+                    Debug.LogWarning("Adventurer " + id + ": Giving up, spawn is unreachable after " + returnAttempts + " attempts");
+                    AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
+                    Destroy(gameObject);
+                }
+            }
+            return;
+        }
+        if (path.Count == 0)
+        {
+            Debug.LogError("Adventurer " + id + ": FindPath returned empty path from (" + startX + "," + startY + ") to (" + endX + "," + endY + ")");
+            return;
+        }
+        
         if (movementCoroutine != null)
         {
             StopCoroutine(movementCoroutine);
         }
 
+        if (isReturningToSpawn)
+        {
+            Debug.Log("Adventurer " + id + ": Starting movement home with path of length " + path.Count);
+        }
         movementCoroutine = StartCoroutine(MoveAlongPath(path));
     }
 
@@ -193,21 +244,43 @@ public class Adventurer : MonoBehaviour
 
          while (pathIndex < path.Count)
         {
-            // Check if the next tile is occupied
-            if (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()))
+            // Get spawn distance for return logic
+            float distanceToSpawn = float.MaxValue;
+            if (isReturningToSpawn)
             {
-                    while (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()))
+                Vector3 spawnPos = gameManager.getSpawnPoint();
+                Vector2 spawnGridPos = UF.WorldToGridCoords(spawnPos);
+                Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+                distanceToSpawn = Vector2.Distance(curGridPos, spawnGridPos);
+            }
+            
+            // Check if the next tile is occupied (but ignore blocking if very close to spawn during return)
+            bool tileBlocked = pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY());
+            
+            if (tileBlocked && !(isReturningToSpawn && distanceToSpawn < 3f))
+            {
+                    int localWaitTime = 0;
+                    int maxWait = isReturningToSpawn ? 120 : 300; // Wait 2 seconds for returns, 5 for exploration
+                    
+                    while (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()) && !(isReturningToSpawn && distanceToSpawn < 3f))
                     {
-                    waitTime++;
-                    if (waitTime > 300) // Wait up to 5 seconds (300 frames at 60fps)
-                    {
-                        Debug.Log("Adventurer " + id + " is stuck and cannot move!");
-                        FollowPath(); // Recalculate path
-                        yield break;
+                        localWaitTime++;
+                        if (localWaitTime > maxWait)
+                        {
+                            if (isReturningToSpawn)
+                            {
+                                Debug.Log("Adventurer " + id + " is stuck returning, recalculating path!");
+                            }
+                            else
+                            {
+                                Debug.Log("Adventurer " + id + " is stuck exploring, recalculating path!");
+                            }
+                            // Recalculate path from current position - preserve the return flag
+                            FollowPath(isReturningToSpawn);
+                            yield break;
+                        }
+                        yield return null;
                     }
-                    yield return null;
-                    continue; // Skip the rest and check again next frame
-                }
             }
 
             waitTime = 0;
@@ -218,8 +291,11 @@ public class Adventurer : MonoBehaviour
                 pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
             }
 
-            // Mark current tile as occupied
-            pathfinding.SetTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY(), true);
+            // Don't mark spawn area tiles as occupied during return to allow overlap
+            if (!(isReturningToSpawn && distanceToSpawn < 3f))
+            {
+                pathfinding.SetTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY(), true);
+            }
             
             Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
             targetPosition.z = -1;
@@ -240,6 +316,7 @@ public class Adventurer : MonoBehaviour
 
         // Clear the last tile when path is complete
         foundDestination = true;
+        movementCoroutine = null;
     }
 
     private Vector2 FindDesiredPosition()
@@ -287,18 +364,84 @@ public class Adventurer : MonoBehaviour
 
     private void makeDecision()
     {
-        if (gameManager.TimeToExplore())
+        // If gameManager is not initialized, get it
+        if (gameManager == null)
         {
-            if (courage < 10) {
-                // Return to spawn point
-                FollowPath(true);
-                Vector2 pos = gameManager.getSpawnPoint();
-                if (position == pos) {
+            gameManager = Game_Manger.instance;
+            if (gameManager == null) return;
+        }
+
+        // Check if time to explore is over
+        bool timeIsUp = gameManager.TimeToExplore();
+
+        if (timeIsUp)
+        {
+            // TIME IS UP - MUST RETURN TO SPAWN
+            if (!isReturningToSpawn)
+            {
+                // Just started returning
+                isReturningToSpawn = true;
+                returnAttempts = 0;
+                waitTimeForSpawn = 0;
+                Debug.Log("Adventurer " + id + " starting return to spawn");
+                FollowPath(true); // Go home!
+            }
+            else
+            {
+                // Already in return mode - check status
+                waitTimeForSpawn++;
+                
+                // Check if reached spawn
+                Vector3 spawnPos = gameManager.getSpawnPoint();
+                Vector2 spawnGridPos = UF.WorldToGridCoords(spawnPos);
+                Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+                
+                float distanceToSpawn = Vector2.Distance(curGridPos, spawnGridPos);
+                
+                // Check if at spawn tile
+                if (distanceToSpawn < 1f)
+                {
+                    Debug.Log("Adventurer " + id + " reached spawn (" + distanceToSpawn + " units away)");
+                    AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
                     Destroy(gameObject);
+                    return;
+                }
+                
+                // If no movement coroutine, try pathfinding again
+                if (!IsCoroutineRunning(movementCoroutine))
+                {
+                    returnAttempts++;
+                    Debug.Log("Adventurer " + id + " no active movement, retry attempt #" + returnAttempts + ", distance to spawn: " + distanceToSpawn);
+                    FollowPath(true);
+                }
+                
+                // Force destroy if waited way too long (30 seconds) or too many attempts
+                if (waitTimeForSpawn > 1800 || returnAttempts > 10)
+                {
+                    Debug.LogWarning("Adventurer " + id + " giving up return (waited " + waitTimeForSpawn + " frames, attempts " + returnAttempts + "), destroying at distance " + distanceToSpawn);
+                    AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
+                    Destroy(gameObject);
+                    return;
                 }
             }
         }
-        FollowPath();
+        else
+        {
+            // STILL TIME TO EXPLORE
+            if (isReturningToSpawn)
+            {
+                // Was returning but somehow exploration resumed? Reset
+                isReturningToSpawn = false;
+                returnAttempts = 0;
+                waitTimeForSpawn = 0;
+            }
+            
+            // Explore normally - only call FollowPath if not moving
+            if (!IsCoroutineRunning(movementCoroutine))
+            {
+                FollowPath(false);
+            }
+        }
     }
     
 }
