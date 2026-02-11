@@ -42,7 +42,7 @@ public class PlaceBlock : MonoBehaviour
             Debug.Log("Mouse Y Position: " + mouseY + " - Ignoring block placement input.");
             return;
         }
-        if (PauseScript.isPaused) return;
+        if (PauseScript.isPaused || UITextManager.isRoomMenuOpen) return;
         Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorld.z = 0f;
 

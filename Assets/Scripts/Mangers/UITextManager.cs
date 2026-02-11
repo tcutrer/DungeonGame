@@ -6,6 +6,7 @@ using TMPro;
 public class UITextManager : MonoBehaviour
 {
     public static UITextManager Instance { get; private set; }
+    public static bool isRoomMenuOpen = false;
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI roomPurchaseText;
     public GameObject roomPurchasePanel;
@@ -51,12 +52,14 @@ public class UITextManager : MonoBehaviour
             roomPurchaseText.text = "Do you want to buy this room for:" + System.Environment.NewLine + System.Environment.NewLine + roomCost + System.Environment.NewLine + System.Environment.NewLine + "?";
             roomPurchasePosition = position;
             roomPurchasePanel.SetActive(true);
+            isRoomMenuOpen = true;
         }
     }
 
     public void DenyRoomPurchaseText()
     {
         roomPurchasePanel.SetActive(false);
+        isRoomMenuOpen = false;
     }
 
     public void ConfirmRoomPurchaseText()
@@ -76,6 +79,7 @@ public class UITextManager : MonoBehaviour
             }
         }
         roomPurchasePanel.SetActive(false);
+        isRoomMenuOpen = false;
     }
 
     // Update is called once per frame
