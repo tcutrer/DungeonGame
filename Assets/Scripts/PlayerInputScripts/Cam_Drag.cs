@@ -10,6 +10,11 @@ public class Cam_Drag : MonoBehaviour
 
     private bool _isDragging;
 
+    [SerializeField] private float minCameraX = -50f;
+    [SerializeField] private float maxCameraX = 50f;
+    [SerializeField] private float minCameraY = -30f;
+    [SerializeField] private float maxCameraY = 30f;
+
     private void Awake()
     {
         _mainCamera = Camera.main;
@@ -29,7 +34,14 @@ public class Cam_Drag : MonoBehaviour
         if (!_isDragging) return;
 
         _difference = GetMousePosition - transform.position;
-        transform.position = _origin - _difference;
+        Vector3 newPosition = _origin - _difference;
+        
+        // Clamp the camera position within bounds
+        newPosition.x = Mathf.Clamp(newPosition.x, minCameraX, maxCameraX);
+        newPosition.y = Mathf.Clamp(newPosition.y, minCameraY, maxCameraY);
+        newPosition.z = transform.position.z; // Keep z unchanged
+        
+        transform.position = newPosition;
     }
 
     private Vector3 GetMousePosition => _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
