@@ -1078,6 +1078,7 @@ MonoBehaviour:
   PlayerUI: {fileID: 1361986167}
   farmerPrefab: {fileID: 1155799253241514704, guid: 40eda16015a30ba48836344a54fcfc05, type: 3}
   mushlingPrefab: {fileID: 8863752134140775920, guid: ade9f83d63cf8234f86a07fe9d49f1c7, type: 3}
+  batpirePrefab: {fileID: 3876372070765969352, guid: 4c158f743b9f4cc478e627c071b45a07, type: 3}
   adventurercount: 0
 --- !u!4 &531475488
 Transform:
