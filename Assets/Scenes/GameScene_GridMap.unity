@@ -1075,10 +1075,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   select_mode: 0
+  areExplorersGone: 1
   PlayerUI: {fileID: 1361986167}
   farmerPrefab: {fileID: 1155799253241514704, guid: 40eda16015a30ba48836344a54fcfc05, type: 3}
   mushlingPrefab: {fileID: 8863752134140775920, guid: ade9f83d63cf8234f86a07fe9d49f1c7, type: 3}
   adventurercount: 0
+  spawnPoint: {x: -35, y: -35, z: -1}
 --- !u!4 &531475488
 Transform:
   m_ObjectHideFlags: 0
@@ -4007,6 +4009,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 269d7b6b0d13c4b43bbb890784f5b130, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minCameraX: -50
+  maxCameraX: 600
+  minCameraY: -30
+  maxCameraY: 600
 --- !u!114 &1570040129
 MonoBehaviour:
   m_ObjectHideFlags: 0

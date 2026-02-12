@@ -34,7 +34,7 @@ public class UnselectBlock : MonoBehaviour
             Debug.LogError("PlaceBlock: Game_Manger instance is null!");
             return;
         }
-        if (PauseScript.isPaused) return;
+        if (PauseScript.isPaused || UITextManager.isRoomMenuOpen) return;
         Game_Manger.instance.UnselectBlock();
     }
 }

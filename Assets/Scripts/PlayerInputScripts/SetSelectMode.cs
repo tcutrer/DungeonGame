@@ -33,7 +33,7 @@ public class SetSelectMode : MonoBehaviour
             Debug.LogError("SetSelectMode: Game_Manger instance is null!");
             return;
         }
-        if (PauseScript.isPaused) return;
+        if (PauseScript.isPaused || UITextManager.isRoomMenuOpen) return;
         if (wasSelectMode == false)
         {
             setSelectModeTrue();
