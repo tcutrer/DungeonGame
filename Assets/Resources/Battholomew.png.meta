@@ -209,7 +209,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Battholomew_0: -8487224787732455423
+      Battholomew_1: -2002306293619401711
+      Battholomew_2: -6373234404531898795
+      Battholomew_3: 6191197779264006196
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
