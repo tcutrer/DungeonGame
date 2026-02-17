@@ -178,7 +178,9 @@ public class Adventurer : MonoBehaviour
             return;
         }
         // Get current position as grid coordinates
-        grid.GetXY(transform.position, out int startX, out int startY);
+        Vector2 startGridPos = UF.WorldToGridCoords(transform.position);
+        int startX = (int)startGridPos.x;
+        int startY = (int)startGridPos.y;
         
         // newPosition is already in grid coordinates
         int endX = (int)newPosition.x;
