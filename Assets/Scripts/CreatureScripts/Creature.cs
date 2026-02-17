@@ -20,6 +20,7 @@ public class Creature : MonoBehaviour
     public const int searchRange = 15;
     private int waitTime = 0;
     public bool foundDestination = false;
+    public Vector2 HomeTile { get; private set; }
 
     void Awake()
     {
@@ -72,9 +73,18 @@ public class Creature : MonoBehaviour
         return creature;
     }
 
+    //Sets hometile
+    public void SetHomeTile(Vector3 worldPosition)
+    {
+        UtilityFunctions uf = new UtilityFunctions();
+        HomeTile = uf.WorldToGridCoords(worldPosition);
+        Debug.Log("Home tile set to: " + HomeTile);
+    }
+
     // Update is called once per frame
     void Update()
     {
+        /*
         if (pathfinding == null)
         {
             pathfinding = PathfindingManager.Instance.GetPathfinding();
@@ -87,6 +97,7 @@ public class Creature : MonoBehaviour
         {
             FollowPath();
         }
+        */
     }
 
     private bool IsCoroutineRunning(Coroutine coroutine)
@@ -100,6 +111,11 @@ public class Creature : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void search()
+    {
+        
+    }
+    /*
     /// Change this to have creatures path find to neerest Adventurer
     private void FollowPath()
     {
@@ -240,6 +256,6 @@ public class Creature : MonoBehaviour
         }
         return finalDestination;
     }
-
+    */
     
 }
