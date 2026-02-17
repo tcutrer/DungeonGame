@@ -20,6 +20,9 @@ public class Creature : MonoBehaviour
     public const int searchRange = 15;
     private int waitTime = 0;
     private bool foundDestination = false;
+    private Vector3 previousPosition;
+    private Vector3 currentMovementDirection;
+    [SerializeField] private Animator animator;
 
     void Awake()
     {
@@ -34,6 +37,7 @@ public class Creature : MonoBehaviour
         UF = new UtilityFunctions();
         SetupCreature(creatureData);
         pathfinding = PathfindingManager.Instance.GetPathfinding();
+        previousPosition = transform.position;
     }
 
     void SetupCreature(CreatureData data)
@@ -190,6 +194,11 @@ public class Creature : MonoBehaviour
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
                 Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+                currentMovementDirection = (newPosition - previousPosition).normalized;
+                Debug.Log("Current Movement Direction: " + currentMovementDirection);
+                previousPosition = transform.position;
+                animator.SetFloat("XSpeed", currentMovementDirection.x * 100);
+                animator.SetFloat("YSpeed", currentMovementDirection.y * 100);
                 newPosition.z = -1;
                 transform.position = newPosition;
                 yield return null;
