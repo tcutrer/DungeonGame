@@ -18,6 +18,7 @@ public class Adventurer : MonoBehaviour
     private Coroutine movementCoroutine;
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
+
     public const int searchRange = 15;
     private int waitTime = 0;
     private bool foundDestination = false;
@@ -42,6 +43,7 @@ public class Adventurer : MonoBehaviour
         SetupAdventurer(adventurerData);
         pathfinding = PathfindingManager.Instance.GetPathfinding();
         Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
+
 
         if (pathfinding != null)
         {
@@ -183,9 +185,11 @@ public class Adventurer : MonoBehaviour
         int startY = (int)startGridPos.y;
         
         // newPosition is already in grid coordinates
-        int endX = (int)newPosition.x;
-        int endY = (int)newPosition.y;
-        
+
+    // Snap to grid to ensure valid coordinates
+        int endX = Mathf.RoundToInt(newPosition.x);
+        int endY = Mathf.RoundToInt(newPosition.y);
+
         // Validate coordinates are in bounds
         if (endX < 0 || endX >= grid.GetWidth() || endY < 0 || endY >= grid.GetHeight())
         {
@@ -318,6 +322,22 @@ public class Adventurer : MonoBehaviour
 
         // Clear the last tile when path is complete
         foundDestination = true;
+        gameManager.DestroyTileAt((int)currentDestination.x, (int)currentDestination.y);
+        
+        // Destroy the tile at destination
+        if (gameManager != null && gameManager.tileValues != null && (position.x >= 0 && position.y >= 0))
+        {
+            int destX = (int)position.x;
+            int destY = (int)position.y;
+            
+            // Clamp to bounds just in case
+            destX = Mathf.Clamp(destX, 0, gameManager.tileValues.GetLength(0) - 1);
+            destY = Mathf.Clamp(destY, 0, gameManager.tileValues.GetLength(1) - 1);
+
+            // Destroy tiles that are targets (door tile = 2, orange tile = 3, desired tile = 4)
+            gameManager.DestroyTileAt(destX, destY);
+        }
+        
         movementCoroutine = null;
     }
 
@@ -328,7 +348,16 @@ public class Adventurer : MonoBehaviour
         int curX = (int)curGridPos.x;
         int curY = (int)curGridPos.y;
         List<Vector2> possibleDestinations = new List<Vector2>();
-        int[,] tileValues = Game_Manger.instance.tileValues;
+        
+        // Get tileValues from game manager
+        if (gameManager == null || gameManager.tileValues == null)
+        {
+            Debug.LogWarning("Adventurer " + id + ": tileValues is null, cannot find destination");
+            finalDestination = curGridPos;
+            return finalDestination;
+        }
+        
+        int[,] tileValues = gameManager.tileValues;
 
         // Search within the defined range for desired tiles
         for (int x = -searchRange; x <= searchRange; x++)
@@ -342,7 +371,7 @@ public class Adventurer : MonoBehaviour
                 if (checkX >= 0 && checkX < tileValues.GetLength(0) && 
                     checkY >= 0 && checkY < tileValues.GetLength(1))
                 {
-                    if (tileValues[checkX, checkY] == 2 && !pathfinding.IsTileOccupied(checkX, checkY) && !(curX == checkX && curY == checkY)) // Assuming 2 represents a target tile
+                    if ((tileValues[checkX, checkY] == 2 || tileValues[checkX, checkY] == 3 || tileValues[checkX, checkY] == 4) && !pathfinding.IsTileOccupied(checkX, checkY) && !(curX == checkX && curY == checkY)) // Check for door (2), orange (3) or desired (4) tiles
                     {
                         possibleDestinations.Add(new Vector2(checkX, checkY));
                     }
@@ -353,13 +382,17 @@ public class Adventurer : MonoBehaviour
         // Select a random destination from the possible ones
         if (possibleDestinations.Count != 0)
         {
-            finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
-            finalDestination += new Vector2(UnityEngine.Random.Range(-1, 1), UnityEngine.Random.Range(-1, 1));
+            // Store the exact grid coordinates for tile checking later
+            Vector2 selectedTile = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
+            // Add offset of ±1 (the space between tiles) to prevent multiple adventurers from targeting the same tile
+            finalDestination = selectedTile;
             foundDestination = false;
+            Debug.Log("Adventurer " + id + " found destination at (" + selectedTile.x + "," + selectedTile.y + "), moving to (" + finalDestination.x + "," + finalDestination.y + ")");
         }
         else
         {
-            finalDestination = curGridPos; // No valid destination found, stay in place(May need better handling)
+            Debug.Log("Adventurer " + id + ": No valid destinations found at (" + curX + "," + curY + "), staying in place");
+            finalDestination = curGridPos; // No valid destination found, stay in place
         }
         return finalDestination;
     }

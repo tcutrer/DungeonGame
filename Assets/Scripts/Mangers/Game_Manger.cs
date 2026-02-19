@@ -14,7 +14,7 @@ public class Game_Manger : MonoBehaviour
     private float Cycle_time = 0f;
     private bool isnight = true;
     private float time_to_explore = 0f;
-    private float setTimeToExplore = 5f; 
+    private float setTimeToExplore = 60f; 
     public bool areExplorersGone = true;
     private bool isDay = false;
     private int Unit_nums = 0;
@@ -270,6 +270,7 @@ public class Game_Manger : MonoBehaviour
     {
         List<Vector2> tilesToCheckPathfind = new List<Vector2> {};
         Vector2 mainDoorCords = new Vector2(-1, -1);
+        Vector2 orangeTileCords = new Vector2(-1, -1);
         bool goodGrid = true;
         for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
         {
@@ -282,6 +283,17 @@ public class Game_Manger : MonoBehaviour
                         if (mainDoorCords.x == -1 && mainDoorCords.y == -1)
                         {
                             mainDoorCords = new Vector2(x, y);
+                        }
+                        else
+                        {
+                            goodGrid = false;
+                        }
+                        break;
+                    case 3:
+                        if (orangeTileCords.x == -1 && orangeTileCords.y == -1)
+                        {
+                            orangeTileCords = new Vector2(x, y);
+                            tilesToCheckPathfind.Add(orangeTileCords);
                         }
                         else
                         {
@@ -301,6 +313,11 @@ public class Game_Manger : MonoBehaviour
                 }
             }
         }
+        if (orangeTileCords.x == -1 || orangeTileCords.y == -1)
+        {
+            Debug.Log("ReadyForDay: Orange tile not found! Please place exactly one orange tile.");
+            goodGrid = false;
+        }
         if (goodGrid == false || mainDoorCords.x == -1 || mainDoorCords.y == -1)
         {
             return;
@@ -314,6 +331,7 @@ public class Game_Manger : MonoBehaviour
                 return;
             }
         }
+
         if (isnight == true && isDay == false)
         {
             setSpawnPoint();
@@ -393,5 +411,28 @@ public class Game_Manger : MonoBehaviour
     public Vector3 getSpawnPoint() 
     {
         return spawnPoint;
+    }
+
+    public void DestroyTileAt(int x, int y)
+    {
+        if (grid == null) return;
+        
+        try
+        {
+            GameObject tile = grid.GetGridObject(x, y);
+            if (tile != null)
+            {
+                SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+                if (spriteChanger != null)
+                {
+                    spriteChanger.ChangeSprite(0); // Change to empty/destroyed tile
+                    Debug.Log("Tile at (" + x + ", " + y + ") has been destroyed!");
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error destroying tile at (" + x + ", " + y + "): " + e.Message);
+        }
     }
 }

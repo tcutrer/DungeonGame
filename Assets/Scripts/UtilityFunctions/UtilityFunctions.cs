@@ -68,6 +68,9 @@ public class UtilityFunctions {
                             case 2:
                                 intArray[x, y] = 2; // Door/Spawn tile - walkable
                                 break;
+                            case 3:
+                                intArray[x, y] = 2; // Orange tile - walkable
+                                break;
                             case 4:
                                 intArray[x, y] = 2; // Desired tile - walkable
                                 break;
