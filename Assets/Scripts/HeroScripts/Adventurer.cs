@@ -322,7 +322,6 @@ public class Adventurer : MonoBehaviour
 
         // Clear the last tile when path is complete
         foundDestination = true;
-        gameManager.DestroyTileAt((int)currentDestination.x, (int)currentDestination.y);
         
         // Destroy the tile at destination
         if (gameManager != null && gameManager.tileValues != null && (position.x >= 0 && position.y >= 0))
