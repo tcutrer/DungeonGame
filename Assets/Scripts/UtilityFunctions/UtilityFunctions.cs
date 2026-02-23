@@ -71,8 +71,11 @@ public class UtilityFunctions {
                             case 4:
                                 intArray[x, y] = 2; // Desired tile - walkable
                                 break;
+                            case 3:
+                                intArray[x, y] = 2; // Main Horde Tile
+                                break;
                             default:
-                                intArray[x, y] = 0; // Unknown tile (walls, etc)
+                                intArray[x, y] = 0; // Non-walkable tile
                                 break;
                         }
                     }

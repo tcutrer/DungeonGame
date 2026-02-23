@@ -19,7 +19,8 @@ public class Game_Manger : MonoBehaviour
     private bool isDay = false;
     private int Unit_nums = 0;
     private int Phase = 0;
-    private Grid<GameObject> grid;
+    public bool isGameOver = false;
+    public Grid<GameObject> grid;
     public GameObject PlayerUI;
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
@@ -255,6 +256,11 @@ public class Game_Manger : MonoBehaviour
             
         }
 
+        if (isGameOver == true) {
+            Debug.Log("Game Over! The horde has breached your defenses!");
+            // You can add additional game over logic here, such as showing a game over screen or restarting the game.
+        }
+
     }
 
     public void SelectSprite(int spriteIndex)
@@ -270,6 +276,7 @@ public class Game_Manger : MonoBehaviour
     {
         List<Vector2> tilesToCheckPathfind = new List<Vector2> {};
         Vector2 mainDoorCords = new Vector2(-1, -1);
+        Vector2 hordeCords = new Vector2(-1, -1);
         bool goodGrid = true;
         for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
         {
@@ -282,6 +289,16 @@ public class Game_Manger : MonoBehaviour
                         if (mainDoorCords.x == -1 && mainDoorCords.y == -1)
                         {
                             mainDoorCords = new Vector2(x, y);
+                        }
+                        else
+                        {
+                            goodGrid = false;
+                        }
+                        break;
+                    case 3: 
+                        if (hordeCords.x == -1 && hordeCords.y == -1)
+                        {
+                            hordeCords = new Vector2(x, y);
                         }
                         else
                         {
@@ -301,7 +318,7 @@ public class Game_Manger : MonoBehaviour
                 }
             }
         }
-        if (goodGrid == false || mainDoorCords.x == -1 || mainDoorCords.y == -1)
+        if (goodGrid == false || mainDoorCords.x == -1 || mainDoorCords.y == -1 || hordeCords.x == -1 || hordeCords.y == -1)
         {
             return;
         }
