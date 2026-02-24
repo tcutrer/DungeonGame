@@ -22,6 +22,8 @@ public class Game_Manger : MonoBehaviour
     public bool isGameOver = false;
     public Grid<GameObject> grid;
     public GameObject PlayerUI;
+    public GameObject GameOverScreen;
+    public GameObject pauseManager;
     private Test_Sprite testSprite;
     private GameObject testSpriteObject;
     private Vector3 mouseWorld;
@@ -104,6 +106,7 @@ public class Game_Manger : MonoBehaviour
         pathfinding = PathfindingManager.Instance.GetPathfinding();
         setStartingOwnedRooms();
         setupGrid();
+        GameOverScreen.SetActive(false);
     }
 
     private void setStartingOwnedRooms() 
@@ -257,7 +260,16 @@ public class Game_Manger : MonoBehaviour
         }
 
         if (isGameOver == true) {
-            Debug.Log("Game Over! The horde has breached your defenses!");
+            GameOverScreen.SetActive(true);
+            FadeObjectInOnObject fadeScript = GameOverScreen.GetComponent<FadeObjectInOnObject>();
+            pauseManager.GetComponent<PauseScript>().shouldDisablePauseAbility = true;
+            pauseManager.GetComponent<PauseScript>().OnPause(new InputAction.CallbackContext());
+            pauseManager.GetComponent<PauseScript>().setIsPaused(true); // Force pause the game when game over
+            if (fadeScript != null)
+            {
+                fadeScript.startFadeIn();
+            }
+            Time.timeScale = 0f; // Pause the game
             // You can add additional game over logic here, such as showing a game over screen or restarting the game.
         }
 
