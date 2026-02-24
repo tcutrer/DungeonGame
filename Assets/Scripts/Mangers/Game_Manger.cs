@@ -262,13 +262,14 @@ public class Game_Manger : MonoBehaviour
         if (isGameOver == true) {
             GameOverScreen.SetActive(true);
             FadeObjectInOnObject fadeScript = GameOverScreen.GetComponent<FadeObjectInOnObject>();
-            pauseManager.GetComponent<PauseScript>().shouldDisablePauseAbility = true;
-            pauseManager.GetComponent<PauseScript>().OnPause(new InputAction.CallbackContext());
-            pauseManager.GetComponent<PauseScript>().setIsPaused(true); // Force pause the game when game over
+
             if (fadeScript != null)
             {
                 fadeScript.startFadeIn();
             }
+            pauseManager.GetComponent<PauseScript>().shouldDisablePauseAbility = true;
+            pauseManager.GetComponent<PauseScript>().OnPause(new InputAction.CallbackContext());
+            pauseManager.GetComponent<PauseScript>().setIsPaused(true); // Force pause the game when game over
             Time.timeScale = 0f; // Pause the game
             // You can add additional game over logic here, such as showing a game over screen or restarting the game.
         }
