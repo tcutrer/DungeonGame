@@ -27,6 +27,7 @@ public class Adventurer : MonoBehaviour
     private List<string> possibleNames = new List<string> {"Arin", "Bryn", "Cai", "Dara", "Eryn", "Finn", "Gwen", "Hale", "Ira", "Joss"};
 
     private Game_Manger gameManager;
+    private Grid<GameObject> grid;
 
     void Awake()
     {
@@ -318,6 +319,13 @@ public class Adventurer : MonoBehaviour
 
         // Clear the last tile when path is complete
         foundDestination = true;
+        Vector2 finalGridPos = UF.WorldToGridCoords(transform.position);
+        int tilevalue = Game_Manger.instance.tileValues[(int)finalGridPos.x, (int)finalGridPos.y];
+        int tileindex = Game_Manger.instance.grid.GetGridObject((int)finalGridPos.x, (int)finalGridPos.y).GetComponent<SpriteChanger>().GetCurrentSpriteIndex();
+        if (tilevalue == 2 && tileindex == 3) // If the tile is a desired tile and is the correct sprite index
+        {
+            gameManager.isGameOver = true;
+        }
         movementCoroutine = null;
     }
 
@@ -354,7 +362,7 @@ public class Adventurer : MonoBehaviour
         if (possibleDestinations.Count != 0)
         {
             finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
-            finalDestination += new Vector2(UnityEngine.Random.Range(-1, 1), UnityEngine.Random.Range(-1, 1));
+            //finalDestination += new Vector2(UnityEngine.Random.Range(-1, 1), UnityEngine.Random.Range(-1, 1));
             foundDestination = false;
         }
         else
