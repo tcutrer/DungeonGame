@@ -48,6 +48,13 @@ namespace SkellyCursor
         }
         public void SetToMode(ModeOfCursor modeOfCursor)
         {
+            // On Mac, always use default cursor
+            if (Application.platform == RuntimePlatform.OSXPlayer)
+            {
+                Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+                return;
+            }
+
             switch (modeOfCursor)
             {
                 case ModeOfCursor.Default:
