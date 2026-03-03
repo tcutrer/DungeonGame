@@ -53,6 +53,7 @@ MonoBehaviour:
   adventurerName: 
   position: {x: 0, y: 0}
   adventurerData: {fileID: 11400000, guid: dfe8cc5e1cd7d2d4b8c4db96c3e5edab, type: 2}
+  hitpoints: 0
 --- !u!212 &1715717732964528201
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -97,7 +98,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 3763752930381237044, guid: 058aca36ed1cc154f856a7c2c966cd23, type: 3}
+  m_Sprite: {fileID: -2693226145702167002, guid: f7e745fe03272df41926cad1a717e034, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -146,7 +147,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 6.42, y: 9.62}
+    oldSize: {x: 3.66, y: 4.08}
     newSize: {x: 6.42, y: 9.62}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
