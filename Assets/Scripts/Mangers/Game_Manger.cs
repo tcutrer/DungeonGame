@@ -298,6 +298,7 @@ public class Game_Manger : MonoBehaviour
             pauseManager.GetComponent<PauseScript>().setIsPaused(true); // Force pause the game when game over
             Time.timeScale = 0f; // Pause the game
             // You can add additional game over logic here, such as showing a game over screen or restarting the game.
+            
         }
 
     }

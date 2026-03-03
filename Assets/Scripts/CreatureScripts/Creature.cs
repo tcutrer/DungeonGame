@@ -109,7 +109,6 @@ public class Creature : MonoBehaviour
     public void Death()
     {
         Destroy(gameObject);
-        gameManager.PlaceBlock(HomeTile);
     }
 
     public void Distroy()
