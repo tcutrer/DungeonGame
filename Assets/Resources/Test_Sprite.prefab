@@ -103,9 +103,9 @@ MonoBehaviour:
   availableSprites:
   - {fileID: -8275502208090371910, guid: 03c8cb60d29bda240856638e36f97e51, type: 3}
   - {fileID: 2891247693787962197, guid: 3c07d3f9d962c514b96b9bd628bee4cb, type: 3}
-  - {fileID: 281774144, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
-  - {fileID: 362857182, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
-  - {fileID: -409043147, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
+  - {fileID: 7208210530539703328, guid: 50ea6a6540a265c47aa1a80d534f02b5, type: 3}
+  - {fileID: -3775981495601802348, guid: 859f546baefffb7449e0a234be6890b4, type: 3}
+  - {fileID: 3790339609815546677, guid: 5cfafc845700760468f1d79c24b6b8d8, type: 3}
   - {fileID: 1071695733, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: 1880014895, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
   - {fileID: 336007225, guid: 0f9d5c0706c4c554db6d07d7c45c6b1d, type: 3}
