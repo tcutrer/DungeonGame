@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class Adventurer : MonoBehaviour
@@ -28,6 +29,8 @@ public class Adventurer : MonoBehaviour
 
     private Game_Manger gameManager;
     private Grid<GameObject> grid;
+
+    public int hitpoints = 0;
 
     void Awake()
     {
@@ -85,6 +88,18 @@ public class Adventurer : MonoBehaviour
             adventurer.transform.position = spawnPosition;
         }
         return adventurer;
+    }
+
+    public int Attack(int modifier)
+    {
+        int hitpoints = UnityEngine.Random.Range(0, attackPower);
+        hitpoints += modifier;
+        return hitpoints;
+    }
+    public void TakeDamage(int hitpoints)
+    {
+        health -= hitpoints;
+        Debug.Log(name+" Hit -"+hitpoints);
     }
 
     // Update is called once per frame

@@ -9,7 +9,7 @@ public class Game_Manger : MonoBehaviour
     // Private Variables
     public bool select_mode = true;
     private int wavecount = 0;
-    private List<int> adventurercountPerWave = new List<int> {3, 5, 7, 10, 12, 15};
+    private List<int> adventurercountPerWave = new List<int> {1, 5, 7, 10, 12, 15};
     private bool Is_play = false;
     private float Cycle_time = 0f;
     private bool isnight = true;
@@ -30,6 +30,7 @@ public class Game_Manger : MonoBehaviour
     private Pathfinding pathfinding;
     private List<PathNode> path;
     private UtilityFunctions UF;
+    public List<Vector2> AdventurerPos = new List<Vector2>();
     //Prefabs
     [SerializeField] private GameObject farmerPrefab;
     [SerializeField] private GameObject mushlingPrefab;
@@ -193,30 +194,55 @@ public class Game_Manger : MonoBehaviour
         if (spriteChanger == null) return;
 
         if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false) return;
+        
+        // Get the grid coordinates of the block placement
+        Vector3 snappedPosition = new Vector3(
+            Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
+            Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
+            UF.getZPlane()
+        );
+        Vector2 blockGridPos = UF.WorldToGridCoords(snappedPosition);
+        
+        // Check for creatures on this tile and destroy them
+        DestroyCreaturesOnTile(blockGridPos);
+        
         // Check if selected sprite is a creature costume
         for (int i = 0; i < creatureCostumes.Count; i++) {
             if (selectedSpriteIndex != creatureCostumes[i]) continue;
-            Vector3 snappedPosition = new Vector3(
-                Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
-                Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
-                UF.getZPlane()
-            );
+            Vector2 placedGrid = UF.WorldToGridCoords(snappedPosition);
             switch(i) {
                 case 0:
                     creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
                 case 1:
                     creature = Creature.CreateCreature(batpirePrefab, snappedPosition);
+                    if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
                 case 2:
-                    adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
+                    creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
                 default:
                     creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
             }
         }
         spriteChanger.ChangeSprite(selectedSpriteIndex);
+    }
+
+    private void DestroyCreaturesOnTile(Vector2 tilePosition)
+    {
+        Creature[] allCreatures = FindObjectsOfType<Creature>();
+        foreach (Creature creature in allCreatures)
+        {
+            if (creature.HomeTile == tilePosition)
+            {
+                Debug.Log("Block placed on creature's home tile! Destroying creature at " + tilePosition);
+                creature.Distroy();
+            }
+        }
     }
 
     public void unlockRoom(Vector3 position)
@@ -423,5 +449,9 @@ public class Game_Manger : MonoBehaviour
     public Vector3 getSpawnPoint() 
     {
         return spawnPoint;
+    }
+
+    public void getAdventurerPos(int x, int y){
+        AdventurerPos.Add(new Vector2(x, y));
     }
 }
