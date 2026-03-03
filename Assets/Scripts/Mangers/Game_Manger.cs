@@ -281,6 +281,7 @@ public class Game_Manger : MonoBehaviour
         {
             isDay = false;
             setNight();
+            setTimeToExplore += 10f;
             isnight = true;
             
         }
@@ -385,6 +386,7 @@ public class Game_Manger : MonoBehaviour
         UnselectBlock();
         PlayerUI.SetActive(true);
         time_to_explore = 0f;
+        
     }
     private void setDay()
     {
