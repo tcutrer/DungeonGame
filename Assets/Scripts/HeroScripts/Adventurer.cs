@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class Adventurer : MonoBehaviour
@@ -27,6 +28,8 @@ public class Adventurer : MonoBehaviour
     private List<string> possibleNames = new List<string> {"Arin", "Bryn", "Cai", "Dara", "Eryn", "Finn", "Gwen", "Hale", "Ira", "Joss"};
 
     private Game_Manger gameManager;
+
+    public int hitpoints = 0;
 
     void Awake()
     {
@@ -84,6 +87,18 @@ public class Adventurer : MonoBehaviour
             adventurer.transform.position = spawnPosition;
         }
         return adventurer;
+    }
+
+    public int Attack(int modifier)
+    {
+        int hitpoints = UnityEngine.Random.Range(0, attackPower);
+        hitpoints += modifier;
+        return hitpoints;
+    }
+    public void TakeDamage(int hitpoints)
+    {
+        health -= hitpoints;
+        Debug.Log(name+" Hit -"+hitpoints);
     }
 
     // Update is called once per frame
@@ -444,8 +459,8 @@ public class Adventurer : MonoBehaviour
         }
     }
 
-    public void updatePos(){
-        Game_Manager.getAdventurerPos((int)curGridPos.x, (int)curGridPos.y);
-    }
+    // public void updatePos(){
+    //     Game_Manager.getAdventurerPos((int)curGridPos.x, (int)curGridPos.y);
+    // }
     
 }

@@ -9,7 +9,7 @@ public class Game_Manger : MonoBehaviour
     // Private Variables
     public bool select_mode = true;
     private int wavecount = 0;
-    private List<int> adventurercountPerWave = new List<int> {3, 5, 7, 10, 12, 15};
+    private List<int> adventurercountPerWave = new List<int> {1, 5, 7, 10, 12, 15};
     private bool Is_play = false;
     private float Cycle_time = 0f;
     private bool isnight = true;
@@ -235,7 +235,7 @@ public class Game_Manger : MonoBehaviour
             if (creature.HomeTile == tilePosition)
             {
                 Debug.Log("Block placed on creature's home tile! Destroying creature at " + tilePosition);
-                creature.Death(0);
+                creature.Death();
             }
         }
     }
