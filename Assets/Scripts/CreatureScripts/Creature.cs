@@ -21,6 +21,7 @@ public class Creature : MonoBehaviour
     private int waitTime = 0;
     public bool foundDestination = false;
     public Vector2 HomeTile { get; private set; }
+    private Game_Manger gameManager;
 
     void Awake()
     {
@@ -91,11 +92,6 @@ public class Creature : MonoBehaviour
 
     }
 
-    private bool IsCoroutineRunning(Coroutine coroutine)
-    {
-        return coroutine != null;
-    }
-
     public int Attack(int modifier)
     {
         int hitpoints = UnityEngine.Random.Range(0, attackPower);
@@ -113,12 +109,12 @@ public class Creature : MonoBehaviour
     public void Death()
     {
         Destroy(gameObject);
+        gameManager.PlaceBlock(HomeTile);
     }
 
-    
+    public void Distroy()
+    {
+        Destroy(gameObject);
+    }
 
-    
-
-    
-    
 }

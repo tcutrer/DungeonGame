@@ -458,9 +458,5 @@ public class Adventurer : MonoBehaviour
             }
         }
     }
-
-    // public void updatePos(){
-    //     Game_Manager.getAdventurerPos((int)curGridPos.x, (int)curGridPos.y);
-    // }
     
 }

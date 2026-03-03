@@ -216,7 +216,8 @@ public class Game_Manger : MonoBehaviour
                     if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
                 case 2:
-                    adventurer = Adventurer.CreateAdventurer(farmerPrefab, snappedPosition);
+                    creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
                 default:
                     creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
@@ -235,7 +236,7 @@ public class Game_Manger : MonoBehaviour
             if (creature.HomeTile == tilePosition)
             {
                 Debug.Log("Block placed on creature's home tile! Destroying creature at " + tilePosition);
-                creature.Death();
+                creature.Distroy();
             }
         }
     }
