@@ -915,6 +915,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   select_mode: 0
   areExplorersGone: 1
+  isDay: 0
   isGameOver: 0
   PlayerUI: {fileID: 1361986167}
   GameOverScreen: {fileID: 2121935586}
@@ -2726,7 +2727,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   farmerPrefab: {fileID: 1155799253241514704, guid: 40eda16015a30ba48836344a54fcfc05, type: 3}
   warriorPrefab: {fileID: 1155799253241514704, guid: 71eb30b0691fe514da07f27ae34f30b2, type: 3}
-  magePrefab: {fileID: 1155799253241514704, guid: 40eda16015a30ba48836344a54fcfc05, type: 3}
+  magePrefab: {fileID: 1155799253241514704, guid: 19e6d37711a8cd242ad1726113d4b507, type: 3}
   adventurerCountStillInMaze: 0
   adventurerCountThisWave: 0
 --- !u!4 &1315309952

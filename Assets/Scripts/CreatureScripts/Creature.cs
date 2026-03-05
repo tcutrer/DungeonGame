@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
 
 public class Creature : MonoBehaviour
@@ -22,30 +21,39 @@ public class Creature : MonoBehaviour
     private int waitTime = 0;
     public bool foundDestination = false;
     public Vector2 HomeTile { get; private set; }
+    private bool homeTileSetExternally = false; // FIX: track if SetHomeTile was called before Start()
     private Game_Manger gameManager;
     private bool isReturningToSpawn = false;
 
-    void Awake()
+    // FIX: Decision cooldown to stop every-frame retry spam
+    private float decisionCooldown = 0f;
+    private const float DECISION_INTERVAL = 0.5f;
+
+    private void Awake()
     {
         if (string.IsNullOrEmpty(id))
-            {
-                id = Guid.NewGuid().ToString();
-            }
+            id = Guid.NewGuid().ToString();
+
+        if (UF == null)
+            UF = new UtilityFunctions();
+
+        if (pathfinding == null)
+            pathfinding = PathfindingManager.Instance?.GetPathfinding();
     }
 
     void Start()
     {
-        UF = new UtilityFunctions();
         SetupCreature(creatureData);
-        pathfinding = PathfindingManager.Instance.GetPathfinding();
+
+        if (pathfinding == null)
+            pathfinding = PathfindingManager.Instance?.GetPathfinding();
     }
 
-    // Sets up defalt creature or certen creature given data
     void SetupCreature(CreatureData data)
     {
         if (data == null)
         {
-            Debug.LogWarning("CreatureData is not assigned!");
+            Debug.LogWarning($"Creature {id}: CreatureData is not assigned! Using defaults.");
             health = 100;
             speed = 5f * 10;
             attackPower = 10;
@@ -56,66 +64,105 @@ public class Creature : MonoBehaviour
             speed = data.speed * 10;
             attackPower = data.attackPower;
         }
-        
-        position = new Vector3(-35, -35, -1);
-        HomeTile = UF.GridToWorldCoords(position);
+
+        if (UF == null) UF = new UtilityFunctions();
+
+        // FIX: Only set HomeTile from transform position if SetHomeTile() was NOT already called
+        // by the factory/manager before Start() ran. This prevents overwriting the correct value.
+        if (!homeTileSetExternally)
+        {
+            HomeTile = UF.WorldToGridCoords(transform.position);
+        }
+        position = HomeTile;
     }
 
-    // Creates a creature 
     public static Creature CreateCreature(GameObject prefab, Vector3 spawnPosition)
     {
-        if (prefab == null) {
-            Debug.LogError("Prefab is null!");
+        if (prefab == null)
+        {
+            Debug.LogError("Creature.CreateCreature: Prefab is null!");
             return null;
         }
-        GameObject instance = GameObject.Instantiate(prefab);
+
+        Vector3 spawnPos = spawnPosition;
+        spawnPos.z = -0.9f;
+
+        GameObject instance = GameObject.Instantiate(prefab, spawnPos, Quaternion.identity);
+        if (instance == null)
+        {
+            Debug.LogError("Creature.CreateCreature: Instantiate returned null.");
+            return null;
+        }
+
         instance.SetActive(true);
         Creature creature = instance.GetComponent<Creature>();
-        if (creature != null) {
-            spawnPosition.z = -1;
-            creature.transform.position = spawnPosition;
+        if (creature == null)
+        {
+            Debug.LogError("Creature.CreateCreature: Prefab missing Creature component! Destroying instance.");
+            Destroy(instance);
+            return null;
         }
-        creature.SetHomeTile(spawnPosition);
-        creature.SetPosition(spawnPosition);
-        return creature;
 
+        var sr = instance.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            try { sr.sortingLayerName = "Characters"; } catch { }
+            sr.sortingOrder = 50;
+        }
+
+        return creature;
     }
 
-    //Sets hometile
+    // FIX: Mark that HomeTile was set externally so Start() does not overwrite it
     public void SetHomeTile(Vector3 worldPosition)
     {
-        UtilityFunctions UF = new UtilityFunctions();
-        HomeTile = UF.GridToWorldCoords(worldPosition);
-        Debug.Log("Home tile set to: " + HomeTile);
+        if (UF == null) UF = new UtilityFunctions();
+        Vector2 grid = UF.WorldToGridCoords(worldPosition);
+        HomeTile = new Vector2(Mathf.RoundToInt(grid.x), Mathf.RoundToInt(grid.y));
+        homeTileSetExternally = true;
+        Debug.Log($"Creature {id}: SetHomeTile world {worldPosition} -> grid {HomeTile}");
     }
 
     public void SetPosition(Vector2 gridPosition)
     {
-        UtilityFunctions UF = new UtilityFunctions();
+        if (UF == null) UF = new UtilityFunctions();
         Vector3 worldPosition = UF.GridToWorldCoords(gridPosition);
-        Debug.Log("Home tile set to: " + HomeTile);
+        transform.position = new Vector3(worldPosition.x, worldPosition.y, -0.9f);
+        position = gridPosition;
+        Debug.Log($"Creature {id}: SetPosition -> grid {gridPosition} world {transform.position}");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
         if (health <= 0)
         {
-            Death(); 
+            Death();
+            return;
         }
+
         if (pathfinding == null)
+            pathfinding = PathfindingManager.Instance?.GetPathfinding();
+
+        if (gameManager == null)
+            gameManager = Game_Manger.instance;
+
+        // shouldThink is true when:
+        // 1. It is daytime (normal exploration/chasing)
+        // 2. Time has run out (TimeToExplore) — even if isDay just flipped false,
+        //    we still need makeDecision to fire ONCE to SET isReturningToSpawn=true.
+        //    Without this, isDay=false and isReturningToSpawn=false simultaneously,
+        //    so makeDecision never runs and the creature never walks home.
+        // 3. Already mid-return (isReturningToSpawn=true) so we can keep retrying.
+        bool shouldThink = gameManager != null &&
+            (gameManager.isDay || gameManager.TimeToExplore() || isReturningToSpawn);
+        if (shouldThink && !IsCoroutineRunning(movementCoroutine))
         {
-            pathfinding = PathfindingManager.Instance.GetPathfinding();
-            if (pathfinding == null)
+            decisionCooldown -= Time.deltaTime;
+            if (decisionCooldown <= 0f)
             {
-                Debug.LogError("Creature " + id + ": Pathfinding component not found in scene!");
+                decisionCooldown = DECISION_INTERVAL;
+                makeDecision();
             }
-        }
-        gameManager = Game_Manger.instance;
-        if (gameManager.isDay == true && !IsCoroutineRunning(movementCoroutine))
-        {
-            makeDecision();
         }
     }
 
@@ -123,285 +170,288 @@ public class Creature : MonoBehaviour
     {
         int hitpoints = UnityEngine.Random.Range(0, attackPower);
         hitpoints += modifier;
-        Debug.Log(name+" Attack "+hitpoints);
+        Debug.Log(name + " Attack " + hitpoints);
         return hitpoints;
     }
+
     public void TakeDamage(int hitpoints)
     {
         health -= hitpoints;
-        Debug.Log(name+" Hit -"+hitpoints);
+        Debug.Log(name + " Hit -" + hitpoints);
     }
 
-    // Destroys Creature
     public void Death()
     {
+        if (UF == null) UF = new UtilityFunctions();
+        Vector2 curGrid = UF.WorldToGridCoords(transform.position);
+        if (pathfinding != null)
+            pathfinding.SetTileOccupied((int)curGrid.x, (int)curGrid.y, false);
+
+        // FIX: Remove from adventurer tracking when destroyed
+        if (!string.IsNullOrEmpty(id) && gameManager != null)
+            gameManager.RemoveAdventurerPos(id);
+
         Destroy(gameObject);
-        gameManager.PlaceBlock(HomeTile);
+        if (gameManager != null)
+            gameManager.PlaceBlock(HomeTile);
     }
 
-    public void Distroy()
+    public void Destroy()
     {
+        if (UF == null) UF = new UtilityFunctions();
+        Vector2 curGrid = UF.WorldToGridCoords(transform.position);
+        if (pathfinding != null)
+            pathfinding.SetTileOccupied((int)curGrid.x, (int)curGrid.y, false);
+
         Destroy(gameObject);
     }
 
-    private void Move(Vector2 newPosition)
+    private void Move(Vector2 newPositionGrid)
     {
-        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
-        pathfinding.SetTileOccupied((int)curGridPos.x, (int)curGridPos.y, false);
-        Grid<PathNode> grid = pathfinding.GetGrid();
+        if (UF == null) UF = new UtilityFunctions();
+        if (pathfinding == null)
+            pathfinding = PathfindingManager.Instance?.GetPathfinding();
+
+        Grid<PathNode> grid = pathfinding?.GetGrid();
         if (grid == null)
         {
-            Debug.LogError("Adventurer " + id + ": Grid is null in Move()!");
+            Debug.LogError($"Creature {id}: Move(): pathfinding grid is null!");
             return;
-        }
-        // Get current position as grid coordinates
-        Vector2 startGridPos = UF.WorldToGridCoords(transform.position);
-        int startX = (int)startGridPos.x;
-        int startY = (int)startGridPos.y;
-        
-        // newPosition is already in grid coordinates
-        int endX = (int)newPosition.x;
-        int endY = (int)newPosition.y;
-        
-        // Validate coordinates are in bounds
-        if (endX < 0 || endX >= grid.GetWidth() || endY < 0 || endY >= grid.GetHeight())
-        {
-            Debug.LogError("Adventurer " + id + ": Target out of bounds! (" + endX + "," + endY + ") grid is " + grid.GetWidth() + "x" + grid.GetHeight());
-        }
-        
-        List<PathNode> path = pathfinding.FindPath(startX, startY, endX, endY);
-        if (path == null)
-        {
-            Debug.LogError("Adventurer " + id + ": FindPath returned null from (" + startX + "," + startY + ") to (" + endX + "," + endY + ")");
-            return;
-        }
-        
-        if (movementCoroutine != null)
-        {
-            StopCoroutine(movementCoroutine);
         }
 
-        if (isReturningToSpawn)
+        Vector2 startGridPosF = UF.WorldToGridCoords(transform.position);
+        int startX = Mathf.RoundToInt(startGridPosF.x);
+        int startY = Mathf.RoundToInt(startGridPosF.y);
+
+        int endX = Mathf.RoundToInt(newPositionGrid.x);
+        int endY = Mathf.RoundToInt(newPositionGrid.y);
+
+        if (endX < 0 || endX >= grid.GetWidth() || endY < 0 || endY >= grid.GetHeight())
         {
-            Debug.Log("Adventurer " + id + ": Starting movement home with path of length " + path.Count);
+            Debug.LogError($"Creature {id}: Move(): target out of bounds ({endX},{endY}) grid {grid.GetWidth()}x{grid.GetHeight()}");
+            return;
         }
+
+        if (startX == endX && startY == endY)
+        {
+            Debug.Log($"Creature {id}: Move(): already at target ({endX},{endY}).");
+            foundDestination = true;
+            return;
+        }
+
+        List<PathNode> path = pathfinding.FindPath(startX, startY, endX, endY);
+        if (path == null || path.Count == 0)
+        {
+            Debug.LogWarning($"Creature {id}: Move(): FindPath returned null/empty from ({startX},{startY}) to ({endX},{endY}).");
+            return;
+        }
+
+        pathfinding.SetTileOccupied(startX, startY, false);
+
+        if (movementCoroutine != null)
+            StopCoroutine(movementCoroutine);
+
         movementCoroutine = StartCoroutine(MoveAlongPath(path));
     }
 
     private IEnumerator MoveAlongPath(List<PathNode> path)
     {
         int pathIndex = 0;
+        int lastX = -1, lastY = -1;
 
-         while (pathIndex < path.Count)
+        Debug.Log($"Creature {id}: MoveAlongPath started, nodes: {path.Count}");
+
+        while (pathIndex < path.Count)
         {
-            // Get spawn distance for return logic
+            int nextX = path[pathIndex].GetX();
+            int nextY = path[pathIndex].GetY();
+
             float distanceToSpawn = float.MaxValue;
             if (isReturningToSpawn)
             {
-                Vector2 homeTile = HomeTile;
                 Vector2 homeGridPos = HomeTile;
                 Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
                 distanceToSpawn = Vector2.Distance(curGridPos, homeGridPos);
             }
-            
-            // Check if the next tile is occupied (but ignore blocking if very close to spawn during return)
-            bool tileBlocked = pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY());
-            
+
+            bool tileBlocked = pathfinding.IsTileOccupied(nextX, nextY);
             if (tileBlocked && !(isReturningToSpawn && distanceToSpawn < 3f))
             {
-                    int localWaitTime = 0;
-                    int maxWait = isReturningToSpawn ? 120 : 300; // Wait 2 seconds for returns, 5 for exploration
-                    
-                    while (pathfinding.IsTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY()) && !(isReturningToSpawn && distanceToSpawn < 3f))
+                int localWaitTime = 0;
+                int maxWait = isReturningToSpawn ? 120 : 300;
+                while (pathfinding.IsTileOccupied(nextX, nextY) && !(isReturningToSpawn && distanceToSpawn < 3f))
+                {
+                    localWaitTime++;
+                    if (localWaitTime > maxWait)
                     {
-                        localWaitTime++;
-                        if (localWaitTime > maxWait)
-                        {
-                            if (isReturningToSpawn)
-                            {
-                                Debug.Log("Adventurer " + id + " is stuck returning, recalculating path!");
-                            }
-                            else
-                            {
-                                Debug.Log("Adventurer " + id + " is stuck exploring, recalculating path!");
-                            }
-                            // Recalculate path from current position - preserve the return flag
-                            FollowPath(isReturningToSpawn);
-                            yield break;
-                        }
-                        yield return null;
+                        Debug.LogWarning($"Creature {id}: MoveAlongPath: stuck waiting on tile ({nextX},{nextY}). Recalculating.");
+                        FollowPath(isReturningToSpawn);
+                        yield break;
                     }
+                    yield return null;
+                }
             }
 
-            waitTime = 0;
-            
-            // Clear previous tile as unoccupied
             if (pathIndex > 0)
             {
-                pathfinding.SetTileOccupied(path[pathIndex - 1].GetX(), path[pathIndex - 1].GetY(), false);
+                int prevX = path[pathIndex - 1].GetX();
+                int prevY = path[pathIndex - 1].GetY();
+                pathfinding.SetTileOccupied(prevX, prevY, false);
             }
 
-            // Don't mark spawn area tiles as occupied during return to allow overlap
             if (!(isReturningToSpawn && distanceToSpawn < 3f))
+                pathfinding.SetTileOccupied(nextX, nextY, true);
+
+            lastX = nextX; lastY = nextY;
+
+            Vector3 targetWorld = UF.GridToWorldCoords(new Vector3(nextX, nextY, -1));
+            targetWorld.z = -0.9f;
+            currentDestination = targetWorld;
+
+            while (Vector3.Distance(transform.position, targetWorld) > 0.1f)
             {
-                pathfinding.SetTileOccupied(path[pathIndex].GetX(), path[pathIndex].GetY(), true);
-            }
-            
-            Vector3 targetPosition = UF.GridToWorldCoords(new Vector3(path[pathIndex].GetX(), path[pathIndex].GetY(), -1));
-            targetPosition.z = -1;
-            currentDestination = targetPosition;
-            
-            // Move to target position
-            while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
-            {
-                Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
-                newPosition.z = -1;
-                transform.position = newPosition;
+                transform.position = Vector3.MoveTowards(transform.position, targetWorld, speed * Time.deltaTime);
+                transform.position = new Vector3(transform.position.x, transform.position.y, -0.9f);
                 yield return null;
             }
-        
 
             pathIndex++;
         }
 
-        // Clear the last tile when path is complete
+        Debug.Log($"Creature {id}: MoveAlongPath finished at grid ({lastX},{lastY}).");
+
+        if (lastX >= 0 && lastY >= 0 && pathfinding != null)
+            pathfinding.SetTileOccupied(lastX, lastY, false);
+
         foundDestination = true;
         movementCoroutine = null;
     }
-     private Vector2 FindDesiredPosition()
-    {   
-        // Initialize necessary variables
-        Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
-        int curX = (int)curGridPos.x;
-        int curY = (int)curGridPos.y;
-        List<Vector2> possibleDestinations = new List<Vector2>();
-    
 
-        // Search within the defined range for desired tiles
+    private Vector2 FindDesiredPosition()
+    {
+        if (UF == null) UF = new UtilityFunctions();
+        if (pathfinding == null)
+            pathfinding = PathfindingManager.Instance?.GetPathfinding();
+
+        Grid<PathNode> grid = pathfinding?.GetGrid();
+        if (grid == null)
+            return UF.WorldToGridCoords(transform.position);
+
+        Vector2 curGridPosF = UF.WorldToGridCoords(transform.position);
+        int curX = Mathf.RoundToInt(curGridPosF.x);
+        int curY = Mathf.RoundToInt(curGridPosF.y);
+
+        List<Vector2> possibleDestinations = new List<Vector2>();
+
         for (int x = -searchRange; x <= searchRange; x++)
         {
             for (int y = -searchRange; y <= searchRange; y++)
             {
-                int checkX = x + curX;
-                int checkY = y + curY;
-                
-
-                possibleDestinations.Add(new Vector2(checkX, checkY));
-    
+                int checkX = curX + x;
+                int checkY = curY + y;
+                if (checkX >= 0 && checkX < grid.GetWidth() && checkY >= 0 && checkY < grid.GetHeight())
+                {
+                    possibleDestinations.Add(new Vector2(checkX, checkY));
+                }
             }
         }
 
-        // Select a random destination from the possible ones
-        if (possibleDestinations.Count != 0)
+        if (possibleDestinations.Count > 0)
         {
-            finalDestination = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
-            //finalDestination += new Vector2(UnityEngine.Random.Range(-1, 1), UnityEngine.Random.Range(-1, 1));
+            Vector2 chosen = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
+            if (chosen.x == curX && chosen.y == curY && possibleDestinations.Count > 1)
+                chosen = possibleDestinations[UnityEngine.Random.Range(0, possibleDestinations.Count)];
+
+            finalDestination = new Vector2(Mathf.RoundToInt(chosen.x), Mathf.RoundToInt(chosen.y));
             foundDestination = false;
+            return finalDestination;
         }
-        else
-        {
-            finalDestination = curGridPos; // No valid destination found, stay in place(May need better handling)
-        }
-        return finalDestination;
+        return new Vector2(curX, curY);
     }
 
     private void makeDecision()
     {
-        // If gameManager is not initialized, get it
         if (gameManager == null)
         {
             gameManager = Game_Manger.instance;
             if (gameManager == null) return;
         }
 
-        // Check if time to explore is over
         bool timeIsUp = gameManager.TimeToExplore();
 
         if (timeIsUp)
         {
-            // TIME IS UP - MUST RETURN TO SPAWN
             if (!isReturningToSpawn)
             {
-                // Just started returning
                 isReturningToSpawn = true;
-                Debug.Log("Adventurer " + id + " starting return to spawn");
-                FollowPath(true); // Go home!
+                Debug.Log("Creature " + id + " starting return to home tile");
+                FollowPath(true);
             }
             else
             {
-                // Already in return mode - check status
-                
-                // Check if reached spaw                
-                Vector2 spawnGridPos = HomeTile;
+                // FIX: Compare against HomeTile (grid coords) not world coords
                 Vector2 curGridPos = UF.WorldToGridCoords(transform.position);
-                
-                float distanceToSpawn = Vector2.Distance(curGridPos, spawnGridPos);
-                
-                // Check if at spawn tile
-                if (distanceToSpawn < 1f)
+                float distanceToHome = Vector2.Distance(curGridPos, HomeTile);
+
+                if (distanceToHome < 1f)
                 {
-                    Debug.Log("Adventurer " + id + " reached spawn (" + distanceToSpawn + " units away)");
+                    Debug.Log("Creature " + id + " reached home tile (" + distanceToHome + " units away)");
                     AdventurerManager.Instance.decrementadventurercount_inMazeStillUP();
                     Destroy(gameObject);
                     return;
                 }
-                
-                // If no movement coroutine, try pathfinding again
+
                 if (!IsCoroutineRunning(movementCoroutine))
                 {
                     FollowPath(true);
                 }
-                
-                // Force destroy if waited way too long (30 seconds) or too many attempts
-
             }
         }
         else
         {
-            // STILL TIME TO EXPLORE
             if (isReturningToSpawn)
-            {
-                // Was returning but somehow exploration resumed? Reset
                 isReturningToSpawn = false;
-            }
-            
-            // Explore normally - only call FollowPath if not moving
-            if (!IsCoroutineRunning(movementCoroutine))
+
+            // FIX: Chase adventurers if any are registered in the manager
+            if (gameManager.AdventurerPos != null && gameManager.AdventurerPos.Count > 0)
             {
-                FollowPath(false);
+                if (!IsCoroutineRunning(movementCoroutine))
+                    MoveTowardAdventurer();
+                return;
             }
+
+            // Otherwise explore randomly
+            if (!IsCoroutineRunning(movementCoroutine))
+                FollowPath(false);
         }
     }
+
     private void FollowPath(bool gotoSpawn = false)
     {
         if (pathfinding == null)
-        {
-            pathfinding = PathfindingManager.Instance.GetPathfinding();
-        }
+            pathfinding = PathfindingManager.Instance?.GetPathfinding();
         if (pathfinding == null)
         {
-            Debug.LogError("Pathfinding is null! PathfindingManager may not be initialized.");
+            Debug.LogError($"Creature {id}: FollowPath(): pathfinding null.");
             return;
         }
+
         foundDestination = false;
         if (gotoSpawn)
         {
-            Vector2 spawnPointWorld = UF.GridToWorldCoords(HomeTile); // Assuming HomeTile is set to the grid position of the spawn point
-            Vector2 spawnPointGrid = HomeTile; // HomeTile should already be in grid coordinates based on SetHomeTile
-            
-            if (isReturningToSpawn)
-            {
-                Debug.Log("Adventurer " + id + " attempting spawn path - spawn world: " + spawnPointWorld + " -> grid: " + spawnPointGrid);
-            }
+            // FIX: Use HomeTile directly — it is already in grid coordinates
+            Vector2 spawnPointGrid = new Vector2(Mathf.RoundToInt(HomeTile.x), Mathf.RoundToInt(HomeTile.y));
+            isReturningToSpawn = true;
+            Debug.Log($"Creature {id}: FollowPath(gotoSpawn) -> target grid {spawnPointGrid}");
             Move(spawnPointGrid);
         }
         else
         {
+            isReturningToSpawn = false;
             Vector2 desiredPosition = FindDesiredPosition();
-            if (desiredPosition != null)
-            {
-                Move(desiredPosition);
-            }
+            desiredPosition = new Vector2(Mathf.RoundToInt(desiredPosition.x), Mathf.RoundToInt(desiredPosition.y));
+            Debug.Log($"Creature {id}: FollowPath(explore) -> target grid {desiredPosition}");
+            Move(desiredPosition);
         }
     }
 
@@ -409,5 +459,40 @@ public class Creature : MonoBehaviour
     {
         return coroutine != null;
     }
-}
 
+    private Vector2 GetClosestAdventurer()
+    {
+        // FIX: Use the live AdventurerPos list from Game_Manger (populated each frame by adventurers)
+        List<Vector2> adventurers = gameManager?.AdventurerPos;
+
+        if (adventurers == null || adventurers.Count == 0)
+            return new Vector2(-1, -1);
+
+        Vector2 currentGrid = UF.WorldToGridCoords(transform.position);
+
+        Vector2 closest = adventurers[0];
+        float closestDist = Vector2.Distance(currentGrid, closest);
+
+        for (int i = 1; i < adventurers.Count; i++)
+        {
+            float dist = Vector2.Distance(currentGrid, adventurers[i]);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = adventurers[i];
+            }
+        }
+
+        return closest;
+    }
+
+    private void MoveTowardAdventurer()
+    {
+        Vector2 target = GetClosestAdventurer();
+
+        if (target.x == -1 && target.y == -1)
+            return;
+
+        Move(target);
+    }
+}
