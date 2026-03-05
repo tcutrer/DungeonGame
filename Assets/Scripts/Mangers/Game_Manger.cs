@@ -14,9 +14,9 @@ public class Game_Manger : MonoBehaviour
     private float Cycle_time = 0f;
     private bool isnight = true;
     private float time_to_explore = 0f;
-    private float setTimeToExplore = 5f; 
+    private float setTimeToExplore = 5f;
     public bool areExplorersGone = true;
-    private bool isDay = false;
+    public bool isDay = false;
     private int Unit_nums = 0;
     private int Phase = 0;
     public bool isGameOver = false;
@@ -30,7 +30,36 @@ public class Game_Manger : MonoBehaviour
     private Pathfinding pathfinding;
     private List<PathNode> path;
     private UtilityFunctions UF;
-    public List<Vector2> AdventurerPos = new List<Vector2>();
+
+    // FIX: Use a dictionary keyed by adventurer id instead of a plain List<Vector2>.
+    // This lets each adventurer update its own entry each frame without duplicates,
+    // and allows clean removal on death — so creatures never chase ghost positions.
+    private Dictionary<string, Vector2> adventurerPosDict = new Dictionary<string, Vector2>();
+
+    // Public property returns a snapshot list so Creature code doesn't need changes
+    public List<Vector2> AdventurerPos => new List<Vector2>(adventurerPosDict.Values);
+
+    // FIX: Called by Adventurer.Update() every frame to keep position current
+    public void UpdateAdventurerPos(string adventurerId, Vector2 pos)
+    {
+        adventurerPosDict[adventurerId] = pos;
+    }
+
+    // FIX: Called by Adventurer.Death() and on destroy to clean up stale entries
+    public void RemoveAdventurerPos(string adventurerId)
+    {
+        if (adventurerPosDict.ContainsKey(adventurerId))
+            adventurerPosDict.Remove(adventurerId);
+    }
+
+    // Keep old method for backwards compatibility — routes through dictionary now
+    public void getAdventurerPos(int x, int y)
+    {
+        // This method was never really usable without an id; kept for compile compatibility.
+        // Prefer UpdateAdventurerPos(id, pos) from Adventurer directly.
+        Debug.LogWarning("getAdventurerPos(int,int) is deprecated. Use UpdateAdventurerPos(id, pos) instead.");
+    }
+
     //Prefabs
     [SerializeField] private GameObject farmerPrefab;
     [SerializeField] private GameObject mushlingPrefab;
@@ -44,49 +73,22 @@ public class Game_Manger : MonoBehaviour
     public int[,] tileValues { get; private set; }
     public bool[,] roomAvailable;
     public Vector3 spawnPoint = new Vector3(-35, -35, -1);
-    
+
     private int selectedSpriteIndex = 0;
 
-    
     public static Game_Manger instance { get; private set; }
 
     // Getters
-    public bool Get_Is_play()
-    {
-        return Is_play;
-    }
-    public float Get_Cycle_time()
-    {
-        return Cycle_time;
-    }
-    public int Get_Unit_nums()
-    {
-        return Unit_nums;
-    }
-    public int Get_Phase()
-    {
-        return Phase;
-    }
+    public bool Get_Is_play() { return Is_play; }
+    public float Get_Cycle_time() { return Cycle_time; }
+    public int Get_Unit_nums() { return Unit_nums; }
+    public int Get_Phase() { return Phase; }
 
     // Setters
-    public void Set_Is_play(bool value)
-    {
-        Is_play = value;
-    }
-    public void Set_Cycle_time(float value)
-    {
-        Cycle_time = value;
-    }
-    public void Set_Unit_nums(int value)
-    {
-        Unit_nums = value;
-    }
-    public void Set_Phase(int value)
-    {
-        Phase = value;
-    }
-
-    // Other Methods
+    public void Set_Is_play(bool value) { Is_play = value; }
+    public void Set_Cycle_time(float value) { Cycle_time = value; }
+    public void Set_Unit_nums(int value) { Unit_nums = value; }
+    public void Set_Phase(int value) { Phase = value; }
 
     private void Awake()
     {
@@ -111,7 +113,7 @@ public class Game_Manger : MonoBehaviour
         GameOverScreen.SetActive(false);
     }
 
-    private void setStartingOwnedRooms() 
+    private void setStartingOwnedRooms()
     {
         roomAvailable = new bool[UF.amountOfRooms[0], UF.amountOfRooms[1]];
         for (int x = 0; x < 2; x++)
@@ -126,8 +128,7 @@ public class Game_Manger : MonoBehaviour
     private void setupGrid()
     {
         grid = new Grid<GameObject>(UF.getGridWidth() * UF.amountOfRooms[0], UF.getGridHeight() * UF.amountOfRooms[1], UF.getCellSize(), UF.getGridOffset(), testSprite.CreateSprite);
-        
-        // Position all grid objects correctly
+
         for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
         {
             for (int y = 0; y < UF.getGridHeight() * UF.amountOfRooms[1]; y++)
@@ -147,44 +148,42 @@ public class Game_Manger : MonoBehaviour
         }
     }
 
-    private void setWallsUp(Grid<GameObject> grid, int x, int y, Vector3 position) 
+    private void setWallsUp(Grid<GameObject> grid, int x, int y, Vector3 position)
     {
-        if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) || (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
-            {
-                GameObject tile = grid.GetGridObject(position);
-                if (tile == null) return;
-                SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
-                if (spriteChanger == null) return;
-                spriteChanger.ChangeSprite(1); // Set wall sprite
-            }
+        if ((x % UF.getGridWidth() == 0 || x % UF.getGridWidth() == (UF.getGridWidth() - 1)) ||
+            (y % UF.getGridHeight() == 0 || y % UF.getGridHeight() == (UF.getGridHeight() - 1)))
+        {
+            GameObject tile = grid.GetGridObject(position);
+            if (tile == null) return;
+            SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+            if (spriteChanger == null) return;
+            spriteChanger.ChangeSprite(1);
         }
+    }
 
-    private void setUpMainDoor(Grid<GameObject> grid, int x, int y, Vector3 position) 
+    private void setUpMainDoor(Grid<GameObject> grid, int x, int y, Vector3 position)
     {
         if (x == UF.getGridWidth() / 2 && y == 0)
-            {
-                GameObject tile = grid.GetGridObject(position);
-                if (tile == null) return;
-                SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
-                if (spriteChanger == null) return;
-                spriteChanger.ChangeSprite(2); // Set door sprite
-            }
+        {
+            GameObject tile = grid.GetGridObject(position);
+            if (tile == null) return;
+            SpriteChanger spriteChanger = tile.GetComponent<SpriteChanger>();
+            if (spriteChanger == null) return;
+            spriteChanger.ChangeSprite(2);
         }
+    }
 
-    
     public void PlaceBlock(Vector3 position)
     {
         if (grid == null) return;
-
         if (CurrencyManager.Instance == null) return;
 
         if (!roomAvailable[(int)(UF.WorldToGridCoords(position).x / UF.getGridWidth()), (int)(UF.WorldToGridCoords(position).y / UF.getGridHeight())])
         {
-            Debug.Log("PlaceBlock: Attempted to place block outside of availible bounds!");
+            Debug.Log("PlaceBlock: Attempted to place block outside of available bounds!");
             UITextManager.Instance.ShowRoomPurchaseText(50, position);
             return;
         }
-        Debug.Log((UF.WorldToGridCoords(position).x / UF.getGridWidth()) + ", " + (UF.WorldToGridCoords(position).y / UF.getGridHeight()));
 
         GameObject obj = grid.GetGridObject(mouseWorld);
         if (isDay == true) return;
@@ -195,23 +194,21 @@ public class Game_Manger : MonoBehaviour
         if (spriteChanger == null) return;
 
         if (CurrencyManager.Instance.SpendGold(spriteChanger.GetCost(selectedSpriteIndex)) == false) return;
-        
-        // Get the grid coordinates of the block placement
+
         Vector3 snappedPosition = new Vector3(
             Mathf.Floor((mouseWorld.x - UF.getGridOffset().x) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().x + UF.getWhyOffset(),
             Mathf.Floor((mouseWorld.y - UF.getGridOffset().y) / UF.getCellSize()) * UF.getCellSize() + UF.getGridOffset().y + UF.getWhyOffset(),
             UF.getZPlane()
         );
         Vector2 blockGridPos = UF.WorldToGridCoords(snappedPosition);
-        
-        // Check for creatures on this tile and destroy them
+
         DestroyCreaturesOnTile(blockGridPos);
-        
-        // Check if selected sprite is a creature costume
-        for (int i = 0; i < creatureCostumes.Count; i++) {
+
+        for (int i = 0; i < creatureCostumes.Count; i++)
+        {
             if (selectedSpriteIndex != creatureCostumes[i]) continue;
-            Vector2 placedGrid = UF.WorldToGridCoords(snappedPosition);
-            switch(i) {
+            switch (i)
+            {
                 case 0:
                     creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
                     if (creature != null) creature.SetHomeTile(snappedPosition);
@@ -236,12 +233,12 @@ public class Game_Manger : MonoBehaviour
     private void DestroyCreaturesOnTile(Vector2 tilePosition)
     {
         Creature[] allCreatures = FindObjectsOfType<Creature>();
-        foreach (Creature creature in allCreatures)
+        foreach (Creature c in allCreatures)
         {
-            if (creature.HomeTile == tilePosition)
+            if (c.HomeTile == tilePosition)
             {
                 Debug.Log("Block placed on creature's home tile! Destroying creature at " + tilePosition);
-                creature.Distroy();
+                c.Destroy();
             }
         }
     }
@@ -261,22 +258,16 @@ public class Game_Manger : MonoBehaviour
 
     private void Update()
     {
-        // Update mouse world position
         mouseWorld = UF.worldMousePosition();
 
-        // Set walkables for pathfinding
         if (pathfinding == null)
-        {
             pathfinding = PathfindingManager.Instance.GetPathfinding();
-        }
+
         tileValues = UF.GetGridArrayTileValues(grid);
         pathfinding.SetWalkables(tileValues);
 
         if (isDay == true && time_to_explore < setTimeToExplore)
-        {
             time_to_explore += Time.deltaTime;
-        }
-        
 
         if (time_to_explore >= setTimeToExplore && areExplorersGone == true)
         {
@@ -284,42 +275,35 @@ public class Game_Manger : MonoBehaviour
             setNight();
             setTimeToExplore += 10f;
             isnight = true;
-            
+
+            // FIX: Clear all adventurer positions when the day ends
+            adventurerPosDict.Clear();
         }
 
-        if (isGameOver == true) {
+        if (isGameOver == true)
+        {
             GameOverScreen.SetActive(true);
             FadeObjectInOnObject fadeScript = GameOverScreen.GetComponent<FadeObjectInOnObject>();
-
             if (fadeScript != null)
-            {
                 fadeScript.startFadeIn();
-            }
+
             pauseManager.GetComponent<PauseScript>().shouldDisablePauseAbility = true;
             pauseManager.GetComponent<PauseScript>().OnPause(new InputAction.CallbackContext());
-            pauseManager.GetComponent<PauseScript>().setIsPaused(true); // Force pause the game when game over
-            Time.timeScale = 0f; // Pause the game
-            // You can add additional game over logic here, such as showing a game over screen or restarting the game.
-            
+            pauseManager.GetComponent<PauseScript>().setIsPaused(true);
+            Time.timeScale = 0f;
         }
-
     }
 
-    public void SelectSprite(int spriteIndex)
-    {
-        selectedSpriteIndex = spriteIndex;
-    }
+    public void SelectSprite(int spriteIndex) { selectedSpriteIndex = spriteIndex; }
+    public void UnselectBlock() { selectedSpriteIndex = 0; }
 
-    public void UnselectBlock()
-    {
-        selectedSpriteIndex = 0; // Reset to default or no selection
-    }
     public void ReadyForDay()
     {
-        List<Vector2> tilesToCheckPathfind = new List<Vector2> {};
+        List<Vector2> tilesToCheckPathfind = new List<Vector2>();
         Vector2 mainDoorCords = new Vector2(-1, -1);
         Vector2 hordeCords = new Vector2(-1, -1);
         bool goodGrid = true;
+
         for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
         {
             for (int y = 0; y < UF.getGridHeight() * UF.amountOfRooms[1]; y++)
@@ -329,23 +313,15 @@ public class Game_Manger : MonoBehaviour
                 {
                     case 2:
                         if (mainDoorCords.x == -1 && mainDoorCords.y == -1)
-                        {
                             mainDoorCords = new Vector2(x, y);
-                        }
                         else
-                        {
                             goodGrid = false;
-                        }
                         break;
-                    case 3: 
+                    case 3:
                         if (hordeCords.x == -1 && hordeCords.y == -1)
-                        {
                             hordeCords = new Vector2(x, y);
-                        }
                         else
-                        {
                             goodGrid = false;
-                        }
                         break;
                     case 4:
                         tilesToCheckPathfind.Add(new Vector2(x, y));
@@ -353,26 +329,27 @@ public class Game_Manger : MonoBehaviour
                     default:
                         if ((x == 0 || x == (UF.getGridWidth() * UF.amountOfRooms[0] - 1) || y == 0 || y == (UF.getGridHeight() * UF.amountOfRooms[1] - 1)) && tileValue != 1)
                         {
-                            Debug.Log("ReadyForDay: Outer wall tile at " + x + ", " + y + " is not set as a wall! Please fix your grid!");
+                            Debug.Log("ReadyForDay: Outer wall tile at " + x + ", " + y + " is not set as a wall!");
                             goodGrid = false;
                         }
                         break;
                 }
             }
         }
+
         if (goodGrid == false || mainDoorCords.x == -1 || mainDoorCords.y == -1 || hordeCords.x == -1 || hordeCords.y == -1)
-        {
             return;
-        }
+
         for (int i = 0; i < tilesToCheckPathfind.Count; i++)
         {
             path = pathfinding.FindPath((int)mainDoorCords.x, (int)mainDoorCords.y, (int)tilesToCheckPathfind[i].x, (int)tilesToCheckPathfind[i].y);
             if (path == null)
             {
-                Debug.Log("ReadyForDay: No path found from main door to tile at " + tilesToCheckPathfind[i] + "! Please fix your grid!");
+                Debug.Log("ReadyForDay: No path found from main door to tile at " + tilesToCheckPathfind[i] + "!");
                 return;
             }
         }
+
         if (isnight == true && isDay == false)
         {
             setSpawnPoint();
@@ -381,6 +358,7 @@ public class Game_Manger : MonoBehaviour
             isnight = false;
         }
     }
+
     private void setNight()
     {
         isDay = false;
@@ -388,8 +366,9 @@ public class Game_Manger : MonoBehaviour
         UnselectBlock();
         PlayerUI.SetActive(true);
         time_to_explore = 0f;
-        
+        wavecount++;
     }
+
     private void setDay()
     {
         isnight = false;
@@ -399,34 +378,23 @@ public class Game_Manger : MonoBehaviour
         setSpawnPoint();
         SpawnAdventurersForWave(adventurercountPerWave[wavecount]);
         areExplorersGone = false;
-        
     }
-    public void incrementadventurercount(float value)
-    {
-        adventurercount += value;
-    }
-    public void setSelectModeTrue(bool value)
-    {
-        select_mode = value;
-    }
+
+    public void incrementadventurercount(float value) { adventurercount += value; }
+    public void setSelectModeTrue(bool value) { select_mode = value; }
+
     private void SpawnAdventurersForWave(int adventurerCountThisWave)
     {
         for (int i = 0; i < adventurerCountThisWave; i++)
         {
-            
             Vector3 spawnPosition = spawnPoint;
-            
-            
             StartCoroutine(SpawnAdventurerCoroutine(spawnPosition, Random.Range(0, 3), i * 1.0f));
         }
     }
+
     public bool TimeToExplore()
     {
-        if (time_to_explore >= setTimeToExplore)
-        {
-            return true;
-        }
-        return false;
+        return time_to_explore >= setTimeToExplore;
     }
 
     IEnumerator SpawnAdventurerCoroutine(Vector3 spawnPosition, int adventurerType, float delay)
@@ -434,6 +402,7 @@ public class Game_Manger : MonoBehaviour
         yield return new WaitForSeconds(delay);
         AdventurerManager.Instance.SpawnAdventurer(spawnPosition, adventurerType);
     }
+
     private void setSpawnPoint()
     {
         for (int x = 0; x < UF.getGridWidth() * UF.amountOfRooms[0]; x++)
@@ -450,12 +419,6 @@ public class Game_Manger : MonoBehaviour
             }
         }
     }
-    public Vector3 getSpawnPoint() 
-    {
-        return spawnPoint;
-    }
 
-    public void getAdventurerPos(int x, int y){
-        AdventurerPos.Add(new Vector2(x, y));
-    }
+    public Vector3 getSpawnPoint() { return spawnPoint; }
 }
