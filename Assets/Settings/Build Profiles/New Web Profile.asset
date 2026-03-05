@@ -23,7 +23,7 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/UI_Scenes/Menu.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/SampleScene.unity
+    m_path: Assets/Scenes/GameScene_GridMap.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings: []
