@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fa9d42b74efc5114e82357836417e197
+guid: d8da81ef8326e1d47899881beaf33720
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7774691456791831850
-    second: titlename_0
+      213: 8507529278921859586
+    second: titlename 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: titlename_0
+      name: TalkBox_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 73
         width: 518
-        height: 140
+        height: 67
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a25675810b045eb60800000000000000
-      internalID: 7774691456791831850
+      spriteID: fd9c2017f61335847b51eeb07b934ed7
+      internalID: -1112605752
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 0153cc6fc520f07459ab71ba07c509d2
+    spriteID: 24e0652228e807b448fc3a3d9e99c2dd
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      titlename_0: 7774691456791831850
+      TalkBox_0: -1112605752
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

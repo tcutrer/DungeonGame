@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: fa9d42b74efc5114e82357836417e197
+guid: 7507e41a811eb8b47882bfea2d75456c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7774691456791831850
-    second: titlename_0
+      213: 4048485970423837123
+    second: Mini Tutorial Guy_0
+  - first:
+      213: -7784848412930572380
+    second: Mini Tutorial Guy_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +103,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: titlename_0
+      name: Mini Tutorial Guy_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 518
-        height: 140
+        x: 94
+        y: 607
+        width: 363
+        height: 609
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a25675810b045eb60800000000000000
-      internalID: 7774691456791831850
+      spriteID: 3c1f3415a8c1f2830800000000000000
+      internalID: 4048485970423837123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mini Tutorial Guy_1
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 0
+        width: 363
+        height: 590
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4af72054d99a6f390800000000000000
+      internalID: -7784848412930572380
       vertices: []
       indices: 
       edges: []
@@ -125,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 0153cc6fc520f07459ab71ba07c509d2
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -134,8 +159,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      titlename_0: 7774691456791831850
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
