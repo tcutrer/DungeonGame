@@ -35,6 +35,7 @@ public class Game_Manger : MonoBehaviour
     [SerializeField] private GameObject farmerPrefab;
     [SerializeField] private GameObject mushlingPrefab;
     [SerializeField] private GameObject batpirePrefab;
+    [SerializeField] private GameObject floppaTeserPrefab;
 
     private List<int> creatureCostumes = new List<int> {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     private Adventurer adventurer;
@@ -220,7 +221,7 @@ public class Game_Manger : MonoBehaviour
                     if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
                 case 2:
-                    creature = Creature.CreateCreature(mushlingPrefab, snappedPosition);
+                    creature = Creature.CreateCreature(floppaTeserPrefab, snappedPosition);
                     if (creature != null) creature.SetHomeTile(snappedPosition);
                     break;
                 default:

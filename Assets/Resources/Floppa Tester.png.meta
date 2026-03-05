@@ -1,0 +1,350 @@
+fileFormatVersion: 2
+guid: 5014c648db674c84d9f455cb9eb2834b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8559393504218407348
+    second: Floppa Tester_0
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Floppa Tester_0
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 1217
+        width: 419
+        height: 589
+      alignment: 9
+      pivot: {x: 0.4916232, y: 0.28547397}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e65e9b2f80b69649aad2b0428f4f604
+      internalID: 1580681259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_1
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 1821
+        width: 421
+        height: 611
+      alignment: 9
+      pivot: {x: 0.49166298, y: 0.29319832}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ddf2c625c7e454643abe48aa80cd15e6
+      internalID: 701154226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_2
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 1822
+        width: 422
+        height: 610
+      alignment: 9
+      pivot: {x: 0.5, y: 0.27559754}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 78d06d2050646844ab9d76ff2f250664
+      internalID: -533469506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_3
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 1217
+        width: 421
+        height: 604
+      alignment: 9
+      pivot: {x: 0.4666519, y: 0.3082348}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 143371adb32febe4093f164fb2052ac5
+      internalID: -1415008707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_4
+      rect:
+        serializedVersion: 2
+        x: 1311
+        y: 1824
+        width: 417
+        height: 591
+      alignment: 9
+      pivot: {x: 0.5, y: 0.26244435}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 41ce9d2ff6f82184ab8b8ed8aa2374a8
+      internalID: -1423486341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_5
+      rect:
+        serializedVersion: 2
+        x: 1257
+        y: 1218
+        width: 530
+        height: 605
+      alignment: 9
+      pivot: {x: 0.50662243, y: 0.3085518}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7fe5118828c243248ba322307155e14c
+      internalID: -1266130434
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 619
+        width: 607
+        height: 598
+      alignment: 9
+      pivot: {x: 0.49999994, y: 0.2907977}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: afbe35539f2957342964a5ad5b42ad81
+      internalID: -1648401396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_7
+      rect:
+        serializedVersion: 2
+        x: 613
+        y: 604
+        width: 603
+        height: 607
+      alignment: 9
+      pivot: {x: 0.48616892, y: 0.2801594}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 76b7356d5dea1a442a8ba7a196a2faef
+      internalID: -1244241715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_8
+      rect:
+        serializedVersion: 2
+        x: 1218
+        y: 590
+        width: 606
+        height: 628
+      alignment: 9
+      pivot: {x: 0.4999998, y: 0.31407195}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 79ade604102a5b349880f51e34fcad60
+      internalID: 205947756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floppa Tester_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1
+        width: 610
+        height: 611
+      alignment: 9
+      pivot: {x: 0.48632753, y: 0.28842378}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2671f717fea82a749be811d11cdcf913
+      internalID: 1747878345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: e16a034d4d28afa43bc48439abe941e5
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Floppa Tester_0: 1580681259
+      Floppa Tester_1: 701154226
+      Floppa Tester_2: -533469506
+      Floppa Tester_3: -1415008707
+      Floppa Tester_4: -1423486341
+      Floppa Tester_5: -1266130434
+      Floppa Tester_6: -1648401396
+      Floppa Tester_7: -1244241715
+      Floppa Tester_8: 205947756
+      Floppa Tester_9: 1747878345
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
