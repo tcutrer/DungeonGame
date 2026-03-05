@@ -16,7 +16,7 @@ public class Game_Manger : MonoBehaviour
     private float time_to_explore = 0f;
     private float setTimeToExplore = 5f; 
     public bool areExplorersGone = true;
-    private bool isDay = false;
+    public bool isDay = false;
     private int Unit_nums = 0;
     private int Phase = 0;
     public bool isGameOver = false;
