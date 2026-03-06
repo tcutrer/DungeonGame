@@ -1,11 +1,11 @@
-# GUILDED HOLLOW
+# GILDED HOLLOW
 This game is a classic dungeon builder with a modern twist,
 instead of going through a dungeon, you are making it!
 You are the witch or wizard building a sprawling dungeon and fighting hordes
 of greedy adventures.
 
 Summon and command monsters, build sprawling castles, control your fate, 
-all these and more in GUILDED HOLLOW!
+all these and more in GILDED HOLLOW!
 
 MAIN FEAUTURES:
 FIEND SYSTEM:
