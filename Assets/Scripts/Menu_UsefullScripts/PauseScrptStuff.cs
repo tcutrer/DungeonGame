@@ -7,25 +7,11 @@ using UnityEditor;
 #endif
 
 // Nessecary Components
-public class Menu_Script : MonoBehaviour
+public class PauseScriptStuff : MonoBehaviour
 {
-    public void play()
-    {
-# if UNITY_EDITOR
-        SceneManager.LoadScene("Open");
-#else
-        SceneManager.LoadScene("Open");
-#endif
-    }
+
     
-    public void options()
-    {
-# if UNITY_EDITOR
-        EditorSceneManager.LoadScene("Options");
-#else
-        SceneManager.LoadScene("Options");
-#endif
-    }
+
 
     // Public parameterless method so it can be wired to a UI Button OnClick
     public void quit()
