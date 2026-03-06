@@ -1,4 +1,4 @@
-# GUILDED HOLLOW
+# GILDED HOLLOW
 This game is a classic dungeon builder with a modern twist,
 instead of going through a dungeon, you are making it!
 You are the witch or wizard building a sprawling dungeon and fighting hordes
