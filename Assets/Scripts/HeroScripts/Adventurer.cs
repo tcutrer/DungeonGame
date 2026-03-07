@@ -19,7 +19,7 @@ public class Adventurer : MonoBehaviour
     private Coroutine movementCoroutine;
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
-    public const int searchRange = 15;
+    public const int searchRange = 60;
     private int waitTime = 0;
     private bool foundDestination = false;
     private bool isReturningToSpawn = false;
@@ -220,6 +220,7 @@ public class Adventurer : MonoBehaviour
         if (path == null)
         {
             Debug.LogError("Adventurer " + id + ": FindPath returned null from (" + startX + "," + startY + ") to (" + endX + "," + endY + ")");
+
             if (isReturningToSpawn)
             {
                 returnAttempts++;
@@ -232,11 +233,13 @@ public class Adventurer : MonoBehaviour
                     Destroy(gameObject);
                 }
             }
+            Death(10);
             return;
         }
         if (path.Count == 0)
         {
             Debug.LogError("Adventurer " + id + ": FindPath returned empty path from (" + startX + "," + startY + ") to (" + endX + "," + endY + ")");
+            Death(10);
             return;
         }
 
@@ -276,8 +279,8 @@ public class Adventurer : MonoBehaviour
                     localWaitTime++;
                     if (localWaitTime > maxWait)
                     {
-                        Debug.Log("Adventurer " + id + (isReturningToSpawn ? " is stuck returning" : " is stuck exploring") + ", recalculating path!");
-                        FollowPath(isReturningToSpawn);
+                        Debug.Log("Adventurer " + id + " stuck, stopping movement so decision system can retry.");
+                        movementCoroutine = null;
                         yield break;
                     }
                     yield return null;

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f19176425f2006459160110d70538be, type: 3}
   m_Name: Mage
   m_EditorClassIdentifier: 
-  health: 50
+  health: 25
   speed: 1
-  attackPower: 20
+  attackPower: 10
   adventurerName: 

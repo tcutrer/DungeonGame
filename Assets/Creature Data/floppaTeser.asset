@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c12e9fd19ad5584385ec241c622ff69, type: 3}
   m_Name: floppaTeser
   m_EditorClassIdentifier: 
-  health: 5
+  health: 15
   speed: 1
-  attackPower: 4
+  attackPower: 7

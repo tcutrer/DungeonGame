@@ -9,7 +9,7 @@ public class Game_Manger : MonoBehaviour
     // Private Variables
     public bool select_mode = true;
     private int wavecount = 0;
-    private List<int> adventurercountPerWave = new List<int> {1, 5, 7, 10, 12, 15};
+    private List<int> adventurercountPerWave = new List<int> {1, 5, 7, 9, 11, 12, 13, 13, 20, 25, 30, 35, 40, 45, 50};
     private bool Is_play = false;
     private float Cycle_time = 0f;
     private bool isnight = true;
@@ -30,6 +30,9 @@ public class Game_Manger : MonoBehaviour
     private Pathfinding pathfinding;
     private List<PathNode> path;
     private UtilityFunctions UF;
+
+    public GameObject gameObjectmusic1;
+    public GameObject gameObjectmusic2;
 
     // FIX: Use a dictionary keyed by adventurer id instead of a plain List<Vector2>.
     // This lets each adventurer update its own entry each frame without duplicates,
@@ -111,6 +114,8 @@ public class Game_Manger : MonoBehaviour
         setStartingOwnedRooms();
         setupGrid();
         GameOverScreen.SetActive(false);
+        gameObjectmusic1.SetActive(true);
+        gameObjectmusic2.SetActive(false);
     }
 
     private void setStartingOwnedRooms()
@@ -367,6 +372,8 @@ public class Game_Manger : MonoBehaviour
         PlayerUI.SetActive(true);
         time_to_explore = 0f;
         wavecount++;
+        gameObjectmusic1.SetActive(true);
+        gameObjectmusic2.SetActive(false);
     }
 
     private void setDay()
@@ -378,6 +385,8 @@ public class Game_Manger : MonoBehaviour
         setSpawnPoint();
         SpawnAdventurersForWave(adventurercountPerWave[wavecount]);
         areExplorersGone = false;
+        gameObjectmusic1.SetActive(false);
+        gameObjectmusic2.SetActive(true);
     }
 
     public void incrementadventurercount(float value) { adventurercount += value; }

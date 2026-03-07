@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEditor.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,11 +10,9 @@ public class MenuScriptOpen : MonoBehaviour
 {
     public void play()
     {
-# if UNITY_EDITOR
+
         SceneManager.LoadScene("GameScene_GridMap");
-#else
-        SceneManager.LoadScene("GameScene_GridMap");
-#endif
+
     }
     
 

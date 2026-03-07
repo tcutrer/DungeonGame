@@ -17,7 +17,7 @@ public class Creature : MonoBehaviour
     private Coroutine movementCoroutine;
     public Vector2 finalDestination { get; private set; }
     public Vector2 currentDestination { get; private set; }
-    public const int searchRange = 15;
+    public const int searchRange = 10;
     private int waitTime = 0;
     public bool foundDestination = false;
     public Vector2 HomeTile { get; private set; }
@@ -351,6 +351,11 @@ public class Creature : MonoBehaviour
                 int checkY = curY + y;
                 if (checkX >= 0 && checkX < grid.GetWidth() && checkY >= 0 && checkY < grid.GetHeight())
                 {
+                // Prevent creature from selecting its spawn tile
+                    if (checkX == Mathf.RoundToInt(HomeTile.x) && checkY == Mathf.RoundToInt(HomeTile.y))
+                        continue;
+
+
                     possibleDestinations.Add(new Vector2(checkX, checkY));
                 }
             }
